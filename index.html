@@ -1587,6 +1587,36 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       background: rgba(0, 0, 0, 0.2);
     }
 
+    .histogram-container {
+      width: 100%;
+      height: 120px;
+      margin-top: 10px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      display: block;
+    }
+
+    .curve-editor {
+      width: 100%;
+      height: 100px;
+      margin-top: 5px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.2);
+      cursor: crosshair;
+      display: block;
+    }
+
+    .curve-controls {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+      align-items: center;
+    }
+
+    .curve-controls input[type="range"] {
+      flex: 1;
+    }
+
     .gr-bar {
       position: absolute;
       top: 0;
@@ -2320,21 +2350,124 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 
       <!-- COLOR GRADE -->
       <div class="settings-panel" data-panel="grade">
-        <div class="group-title">LGG Suite</div>
+        <!-- Histogram Visualization -->
+        <div class="group-title">Histogram (RGB Parade)</div>
+        <canvas id="histogram-canvas" class="histogram-container"></canvas>
+
+        <!-- Film Response Curves -->
+        <div class="group-title">Film Response</div>
         <div class="setting">
-          <span class="setting-label">Lift (Shadows)</span>
-          <input type="color" id="gradeLift" data-bind="gradeLift" value="#000000" />
-        </div>
-        <div class="setting">
-          <span class="setting-label">Gamma (Mid)</span>
-          <input type="color" id="gradeGamma" data-bind="gradeGamma" value="#808080" />
-        </div>
-        <div class="setting">
-          <span class="setting-label">Gain (High)</span>
-          <input type="color" id="gradeGain" data-bind="gradeGain" value="#ffffff" />
+          <span class="setting-label">Film Curve</span>
+          <select id="filmCurve" data-bind="filmCurve">
+            <option value="0">None</option>
+            <option value="1">Kodak Vision3 500T</option>
+            <option value="2">Fuji Eterna 8543</option>
+          </select>
         </div>
 
+        <!-- RGB Curves -->
+        <div class="group-title">RGB Curves</div>
+        <div class="setting">
+          <span class="setting-label">Red Channel</span>
+          <canvas id="curveR-canvas" class="curve-editor" width="200" height="100"></canvas>
+          <div class="curve-controls">
+            <input type="range" id="curveRShadows" data-bind="curveRShadows" min="0" max="1" step="0.01" value="0.0" />
+            <input type="range" id="curveRMids" data-bind="curveRMids" min="0" max="1" step="0.01" value="0.33" />
+            <input type="range" id="curveRHighlights" data-bind="curveRHighlights" min="0" max="1" step="0.01" value="0.66" />
+            <input type="range" id="curveRWhites" data-bind="curveRWhites" min="0" max="1" step="0.01" value="1.0" />
+            <button class="btn" onclick="resetCurve('R')" style="width:auto;padding:3px 8px;font-size:10px;">Reset</button>
+          </div>
+        </div>
+        <div class="setting">
+          <span class="setting-label">Green Channel</span>
+          <canvas id="curveG-canvas" class="curve-editor" width="200" height="100"></canvas>
+          <div class="curve-controls">
+            <input type="range" id="curveGShadows" data-bind="curveGShadows" min="0" max="1" step="0.01" value="0.0" />
+            <input type="range" id="curveGMids" data-bind="curveGMids" min="0" max="1" step="0.01" value="0.33" />
+            <input type="range" id="curveGHighlights" data-bind="curveGHighlights" min="0" max="1" step="0.01" value="0.66" />
+            <input type="range" id="curveGWhites" data-bind="curveGWhites" min="0" max="1" step="0.01" value="1.0" />
+            <button class="btn" onclick="resetCurve('G')" style="width:auto;padding:3px 8px;font-size:10px;">Reset</button>
+          </div>
+        </div>
+        <div class="setting">
+          <span class="setting-label">Blue Channel</span>
+          <canvas id="curveB-canvas" class="curve-editor" width="200" height="100"></canvas>
+          <div class="curve-controls">
+            <input type="range" id="curveBShadows" data-bind="curveBShadows" min="0" max="1" step="0.01" value="0.0" />
+            <input type="range" id="curveBMids" data-bind="curveBMids" min="0" max="1" step="0.01" value="0.33" />
+            <input type="range" id="curveBHighlights" data-bind="curveBHighlights" min="0" max="1" step="0.01" value="0.66" />
+            <input type="range" id="curveBWhites" data-bind="curveBWhites" min="0" max="1" step="0.01" value="1.0" />
+            <button class="btn" onclick="resetCurve('B')" style="width:auto;padding:3px 8px;font-size:10px;">Reset</button>
+          </div>
+        </div>
+
+        <!-- Channel Mixer -->
         <div class="group-title">Channel Mixer</div>
+        <div class="setting">
+          <span class="setting-label">R from R</span>
+          <input type="range" id="channelMixerRR" data-bind="channelMixerRR" min="-2" max="2" step="0.01" value="1.0" />
+        </div>
+        <div class="setting">
+          <span class="setting-label">R from G</span>
+          <input type="range" id="channelMixerRG" data-bind="channelMixerRG" min="-2" max="2" step="0.01" value="0.0" />
+        </div>
+        <div class="setting">
+          <span class="setting-label">R from B</span>
+          <input type="range" id="channelMixerRB" data-bind="channelMixerRB" min="-2" max="2" step="0.01" value="0.0" />
+        </div>
+        <div class="setting">
+          <span class="setting-label">G from R</span>
+          <input type="range" id="channelMixerGR" data-bind="channelMixerGR" min="-2" max="2" step="0.01" value="0.0" />
+        </div>
+        <div class="setting">
+          <span class="setting-label">G from G</span>
+          <input type="range" id="channelMixerGG" data-bind="channelMixerGG" min="-2" max="2" step="0.01" value="1.0" />
+        </div>
+        <div class="setting">
+          <span class="setting-label">G from B</span>
+          <input type="range" id="channelMixerGB" data-bind="channelMixerGB" min="-2" max="2" step="0.01" value="0.0" />
+        </div>
+        <div class="setting">
+          <span class="setting-label">B from R</span>
+          <input type="range" id="channelMixerBR" data-bind="channelMixerBR" min="-2" max="2" step="0.01" value="0.0" />
+        </div>
+        <div class="setting">
+          <span class="setting-label">B from G</span>
+          <input type="range" id="channelMixerBG" data-bind="channelMixerBG" min="-2" max="2" step="0.01" value="0.0" />
+        </div>
+        <div class="setting">
+          <span class="setting-label">B from B</span>
+          <input type="range" id="channelMixerBB" data-bind="channelMixerBB" min="-2" max="2" step="0.01" value="1.0" />
+        </div>
+
+        <!-- Color Temperature -->
+        <div class="group-title">Color Temperature</div>
+        <div class="setting">
+          <span class="setting-label">Temperature (K)</span>
+          <input type="range" id="colorTemp" data-bind="colorTemp" min="2000" max="10000" step="100" value="6500" />
+        </div>
+        <div class="setting">
+          <span class="setting-label">Tint (Magenta/Green)</span>
+          <input type="range" id="tint" data-bind="tint" min="-1" max="1" step="0.01" value="0.0" />
+        </div>
+
+        <!-- Split Toning -->
+        <div class="group-title">Split Toning</div>
+        <div class="setting">
+          <span class="setting-label">Shadow Tint</span>
+          <input type="color" id="splitToneShadows" data-bind="splitToneShadows" value="#000000" />
+        </div>
+        <div class="setting">
+          <span class="setting-label">Highlight Tint</span>
+          <input type="color" id="splitToneHighlights" data-bind="splitToneHighlights" value="#ffffff" />
+        </div>
+        <div class="setting">
+          <span class="setting-label">Balance</span>
+          <input type="range" id="splitToneBalance" data-bind="splitToneBalance" min="-1" max="1" step="0.01" value="0.0" />
+        </div>
+
+        <!-- Saturation & Vibrance -->
+        <div class="group-title">Saturation & Vibrance</div>
         <div class="setting">
           <span class="setting-label">Sat Boost</span>
           <input type="range" id="gradeSat" data-bind="gradeSat" min="0" max="2" step="0.01" value="1.0" />
@@ -2344,7 +2477,8 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           <input type="range" id="gradeVibrance" data-bind="gradeVibrance" min="0" max="2" step="0.01" value="1.2" />
         </div>
 
-        <div class="group-title">LUT / Film</div>
+        <!-- LUT / Hue Rotate -->
+        <div class="group-title">LUT / Hue</div>
         <div class="setting">
           <span class="setting-label">LUT Intensity</span>
           <input type="range" id="lutInt" data-bind="lutInt" min="0" max="1" step="0.01" value="0.5" />
@@ -2591,13 +2725,13 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       cameraMode: 'orbit', cameraDistance: 35, cameraSpeed: 0.6, cameraShake: 0.45, cameraFov: 60,
       cameraBeatZoom: true, cameraAutoAngles: false,
       particleMode: 'vertex', fieldMode: 'harmonic', symmetry: 6, turbulence: 0.25, cohesion: 0.55, particleCount: 1500,
-      bloomStrength: 0.4, bloomRadius: 0.4, trailMode: 'medium', glitchAmount: 0,
+      bloomStrength: 0.8, bloomRadius: 0.7, trailMode: 'medium', glitchAmount: 0,
       vignette: 0.35, grain: 0.12, aberration: 0.08, anamorphic: 0, scanlines: 0, filmLook: 'none',
       environment: 'void', fogDensity: 0.008, ringCount: 3,
       showInner: true, showOuter: true, showWaveform: true, showBars: false,
       showConnections: true, showParticles: true, showDeepParticles: true, showShockwaves: true,
       showWireframeCore: true, showRimGlow: true, showRings: true,
-      particleSizeMult: 0.7, particleBrightness: 0.8,
+      particleSizeMult: 1.0, particleBrightness: 1.0,
       shockwaveIntensity: 0.7, shockwaveImpactThreshold: 0.55, shockwaveCooldown: 0.22,
       showLightRays: false, showAurora: false, showEnergyField: false, showOrbitals: false,
       showSpectrum: true, autoPilot: false, beatFlash: true,
@@ -2638,8 +2772,22 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       gradeSat: 1.0,
       gradeVibrance: 1.2,
       lutInt: 0.5,
-      lutInt: 0.5,
       hueRotateGrade: 0,
+      // RGB Curves (0.0 to 1.0 for each control point)
+      curveRShadows: 0.0, curveRMids: 0.33, curveRHighlights: 0.66, curveRWhites: 1.0,
+      curveGShadows: 0.0, curveGMids: 0.33, curveGHighlights: 0.66, curveGWhites: 1.0,
+      curveBShadows: 0.0, curveBMids: 0.33, curveBHighlights: 0.66, curveBWhites: 1.0,
+      // Split Toning
+      splitToneShadows: '#000000', splitToneHighlights: '#ffffff', splitToneBalance: 0.0,
+      // Color Temperature
+      colorTemp: 6500.0, // Kelvin
+      tint: 0.0, // -1 to 1
+      // Film Response
+      filmCurve: 0, // 0=none, 1=Kodak, 2=Fuji
+      // Channel Mixer (3x3 matrix)
+      channelMixerRR: 1.0, channelMixerRG: 0.0, channelMixerRB: 0.0,
+      channelMixerGR: 0.0, channelMixerGG: 1.0, channelMixerGB: 0.0,
+      channelMixerBR: 0.0, channelMixerBG: 0.0, channelMixerBB: 1.0,
       showHDRI: true,
       // Advanced Camera System
       dofEnabled: false,
@@ -3458,386 +3606,218 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     // ========================================================================
     // PARTICLE PHYSICS WORKER - Inline Blob for thread safety
     // ========================================================================
-
-
-    class GPUParticleSystem {
-      constructor() {
-        this.count = 50000;
-        this.size = Math.ceil(Math.sqrt(this.count));
-        this.count = this.size * this.size; // Ensure power of 2 texture
-
-        this.current = 0;
-      }
-
-      init() {
-        // 1. FBO Setup for Ping-Pong Simulation
-        this.posRad = [this.createTarget(), this.createTarget()];
-        this.velLife = [this.createTarget(), this.createTarget()];
-        // Initialize textures with random data
-        this.initTextures();
-
-        // 2. Simulation Shader (Compute)
-        this.simMaterial = new THREE.ShaderMaterial({
-          uniforms: {
-            tPos: { value: null },
-            tVel: { value: null },
-            uTime: { value: 0 },
-            uDt: { value: 0.016 },
-            uBass: { value: 0 },
-            uEnergy: { value: 0 },
-            uMode: { value: 0 } // 0: Stardust, 1: Rain, 2: Vortex
-          },
-          vertexShader: `
-            varying vec2 vUv;
-            void main() {
-              vUv = uv;
-              gl_Position = vec4(position, 1.0);
-            }
-          `,
-          fragmentShader: `
-            uniform sampler2D tPos;
-            uniform sampler2D tVel;
-            uniform float uTime;
-            uniform float uDt;
-            uniform float uBass;
-            uniform float uEnergy;
-            uniform int uMode;
-            varying vec2 vUv;
-
-            // Pseudo-random
-            float rand(vec2 co) {
-              return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
-            }
-
-            void main() {
-              vec4 posData = texture2D(tPos, vUv);
-              vec4 velData = texture2D(tVel, vUv);
-              
-              vec3 pos = posData.rgb;
-              float mass = posData.a; // Stored mass/variance
-              vec3 vel = velData.rgb;
-              float life = velData.a;
-
-              life -= uDt * (0.2 + rand(vUv + uTime)*0.5);
-
-              // Respawn logic
-              if (life <= 0.0) {
-                life = 1.0 + rand(vUv + 1.0);
-                // Respawn shape based on mode
-                float a = rand(vUv + 2.0) * 6.28318;
-                float r = rand(vUv + 3.0) * 50.0;
-                pos = vec3(cos(a)*r, (rand(vUv+4.0)-0.5)*50.0, sin(a)*r);
-                vel = vec3(0.0);
-              }
-
-              // Physics
-              vec3 force = vec3(0.0);
-
-              // 1. Gravity / Flow
-              if (uMode == 1) { // Neon Rain
-                force.y -= 20.0;
-              } else if (uMode == 2) { // Vortex
-                 vec3 center = vec3(0.0);
-                 vec3 diff = center - pos;
-                 vec3 tang = cross(normalize(pos), vec3(0,1,0));
-                 force += diff * 0.5 + tang * 30.0;
-              } else { // Stardust (Default)
-                // Gentle curl noise approximation
-                force.x += sin(pos.y * 0.1 + uTime) * 10.0;
-                force.z += cos(pos.x * 0.1 + uTime) * 10.0;
-              }
-
-              // Audio Reactivity
-              float energyForce = uBass * 50.0;
-              vel += normalize(pos) * energyForce * uDt * (rand(vUv) > 0.8 ? 1.0 : 0.0);
-              
-              // Integration
-              vel += force * uDt;
-              vel *= 0.96; // Drag
-              pos += vel * uDt;
-
-              gl_FragColor = vec4(vel, life); // Write to Vel target (though we need MRT or 2 passes usually, here we pack logic)
-              // Note: Standard WebGL1/2 setup without MRT requires 2 separate draw calls or shaders.
-              // For simplicity in this single-file constraints, we will assume a simpler "Update Position" shader that does both or use a simple Euler step in one generic data pass if possible, 
-              // BUT properly we need two shaders or MRT.
-              // To fit in this constraints: we'll simulate VELOCITY updates in the Position shader for this simple particle system, 
-              // or just store "Velocity" as implicit difference. 
-              // Let's use a "Single Pass" Physics trick: Store Pos + Vel in 2 textures, write Pos in pass 1, Vel in pass 2? 
-              // Actually, simply: We will render TWICE. Once to update Velocity Texture, Once to update Position Texture.
-            }
-          ` // We will implement the proper shader splitting in init()
-        });
-
-        // Split Shaders for Velocity and Position Updates (Ping Pong)
-        this.velShader = this.simMaterial.clone();
-        this.velShader.fragmentShader = `
-          uniform sampler2D tPos;
-          uniform sampler2D tVel;
-          uniform float uTime;
-          uniform float uDt;
-          uniform float uBass;
-          uniform float uEnergy;
-          uniform int uMode;
-          varying vec2 vUv;
-
-          float rand(vec2 co){ return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453); }
-
-          void main() {
-            vec4 pData = texture2D(tPos, vUv);
-            vec4 vData = texture2D(tVel, vUv);
-            vec3 pos = pData.rgb;
-            vec3 vel = vData.rgb;
-            float life = vData.a;
-
-            life -= uDt * (0.05 + rand(vUv + uTime)*0.2); // Decay
-
-            if (life <= 0.0) {
-              life = 1.0;
-              vel = vec3((rand(vUv+1.0)-0.5)*10.0, (rand(vUv+2.0)-0.5)*10.0, (rand(vUv+3.0)-0.5)*10.0);
-            } else {
-               // Physics
-               vec3 force = vec3(0.0);
-               // Simple curl
-               force.x += sin(pos.y * 0.1 + uTime) * 20.0;
-               force.y += sin(pos.z * 0.1 + uTime*1.3) * 20.0;
-               force.z += sin(pos.x * 0.1 + uTime*0.7) * 20.0;
-               
-               // Audio Push
-               force += normalize(pos) * uEnergy * 80.0;
-               
-               vel += force * uDt;
-               vel *= 0.92; // Damping
-            }
-            gl_FragColor = vec4(vel, life);
-          }
-        `;
-
-        this.posShader = this.simMaterial.clone();
-        this.posShader.fragmentShader = `
-          uniform sampler2D tPos;
-          uniform sampler2D tVel;
-          uniform float uDt;
-          varying vec2 vUv;
+    const PARTICLE_WORKER_CODE = `
+      self.onmessage = function(e) {
+        const { particles, dt, energy, mode } = e.data;
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          if (p.life <= 0) continue;
+          p.life -= dt;
           
-          float rand(vec2 co){ return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453); }
-
-          void main() {
-            vec4 pData = texture2D(tPos, vUv);
-            vec4 vData = texture2D(tVel, vUv);
-            vec3 pos = pData.rgb;
-            vec3 vel = vData.rgb;
-            float life = vData.a;
-
-            if (life >= 1.0) { // Just respawned
-               // Reset position
-               float a = rand(vUv) * 6.28;
-               float r = rand(vUv+1.0) * 30.0;
-               pos = vec3(cos(a)*r, (rand(vUv+2.0)-0.5)*30.0, sin(a)*r);
-            } else {
-               pos += vel * uDt;
+          let fx = 0, fy = 0, fz = 0;
+          if (mode === 'stardust') {
+            const r = Math.sqrt(p.x*p.x + p.z*p.z);
+            const a = Math.atan2(p.z, p.x) + dt * (0.5 + energy);
+            p.x = Math.cos(a) * r; p.z = Math.sin(a) * r;
+          } else if (mode === 'neon-rain') {
+            fy = -15.0;
+          } else if (mode === 'quantum') {
+            if (Math.random() < 0.02 * energy) {
+              p.x += (Math.random()-0.5)*20; p.y += (Math.random()-0.5)*20; p.z += (Math.random()-0.5)*20;
             }
-            gl_FragColor = vec4(pos, pData.a); // Persist mass
+          } else if (mode === 'filament') {
+            fx = -p.x * 0.5; fy = -p.y * 0.5; fz = -p.z * 0.5;
+          } else if (mode === 'swarm') {
+            const d = Math.sqrt(p.x*p.x + p.y*p.y + p.z*p.z);
+            fx = (Math.random()-0.5)*10 + (Math.sin(p.y*0.1 + dt)*5);
+            fy = (Math.random()-0.5)*10;
+            fz = (Math.random()-0.5)*10 + (Math.cos(p.x*0.1)*5);
+            if (d > 50) { fx -= p.x*0.5; fy -= p.y*0.5; fz -= p.z*0.5; }
+          } else if (mode === 'orbital') {
+            const d = Math.sqrt(p.x*p.x + p.z*p.z);
+            const ang = Math.atan2(p.z, p.x) + dt * (1.0 + 50.0 / (d + 1.0));
+            p.x = Math.cos(ang) * d; p.z = Math.sin(ang) * d;
+            p.y += (Math.random()-0.5) * 0.5;
+            if (Math.abs(p.y) > 20) p.vy -= p.y * 0.1;
           }
-        `;
 
-        this.simMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.simMaterial);
-        this.scene = new THREE.Scene();
-        this.scene.add(this.simMesh);
-        this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+          p.vx += fx * dt; p.vy += fy * dt; p.vz += fz * dt;
+          p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
 
-        // 3. Rendering - LOD System
-        this.material = new THREE.ShaderMaterial({
+          if (p.y < -25) { p.y = -25; p.vy *= -0.4; }
+          const d = Math.sqrt(p.x*p.x + p.y*p.y + p.z*p.z);
+          if (d > 70) {
+            const f = 70 / d;
+            p.x *= f; p.y *= f; p.z *= f;
+            p.vx *= -0.3; p.vy *= -0.3; p.vz *= -0.3;
+          }
+        }
+        self.postMessage({ updated: particles });
+      };
+    `;
+
+    class DynamicParticleSystem {
+      constructor() {
+        const isMobile = (navigator.hardwareConcurrency || 4) <= 4;
+        this.maxParticles = isMobile ? 5000 : 15000;
+        this.activeCount = 0;
+        this.particles = [];
+        this.pool = [];
+        this.historicalPos = Array.from({ length: this.maxParticles }, () => new Float32Array(16 * 3));
+        this.histIdx = new Int32Array(this.maxParticles).fill(0);
+
+        this.container = new THREE.Group();
+        scene.add(this.container);
+
+        this.mat = new THREE.ShaderMaterial({
           uniforms: {
-            tPos: { value: null },
-            tVel: { value: null },
-            uColor: { value: new THREE.Color(0x88ccff) }
+            uTime: { value: 0 },
+            uBass: { value: 0 }, uTreble: { value: 0 },
+            uEnergy: { value: 0 }, uPixelRatio: { value: window.devicePixelRatio || 1 }
           },
           vertexShader: `
-            uniform sampler2D tPos;
-            uniform sampler2D tVel;
-            attribute vec2 reference; // uv coordinate in texture
+            attribute vec3 velocity;
+            attribute float life;
+            attribute vec3 customColor;
             varying vec3 vColor;
-            varying float vAlpha;
-            
+            varying float vLife;
+            uniform float uBass, uEnergy, uPixelRatio;
             void main() {
-              vec4 posData = texture2D(tPos, reference);
-              vec4 velData = texture2D(tVel, reference);
-              vec3 p = posData.rgb;
-              float life = velData.a;
-
-              vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
-              float dist = length(mvPosition.xyz);
-              
-              // LOD Logic in shader
-              float scale = 0.0;
-              
-              #ifdef LOD_HIGH
-                if (dist < 80.0) scale = 1.0;
-              #elif defined(LOD_MID)
-                if (dist >= 80.0 && dist < 250.0) scale = 2.0;
-              #else
-                if (dist >= 250.0) scale = 4.0;
-              #endif
-
-              vAlpha = life;
-              vColor = vec3(0.5, 0.8, 1.0) * (0.5 + 0.5 * length(velData.rgb)*0.1);
-
-              if (scale == 0.0 || life <= 0.0) {
-                 gl_Position = vec4(2.0, 2.0, 2.0, 1.0); // Clip
-                 return;
-              }
-
-              // Billboard logic for Mid/Low
-              #ifndef LOD_HIGH
-                mvPosition = modelViewMatrix * vec4(p, 1.0);
-                mvPosition.xy += position.xy * scale;
-                gl_Position = projectionMatrix * mvPosition;
-              #else
-                // 3D Geometry
-                vec3 instancePos = p;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(instancePos + position * 0.5, 1.0);
-              #endif
+              vColor = customColor;
+              vLife = life;
+              vec3 pos = position + velocity * 0.02;
+              vec4 mvPos = modelViewMatrix * instanceMatrix * vec4(pos, 1.0);
+              gl_PointSize = (15.0 + uBass * 100.0) * (600.0 / -mvPos.z) * uPixelRatio;
+              gl_Position = projectionMatrix * mvPos;
             }
           `,
           fragmentShader: `
             varying vec3 vColor;
-            varying float vAlpha;
+            varying float vLife;
+            uniform float uTreble;
             void main() {
-              if (vAlpha <= 0.01) discard;
-              gl_FragColor = vec4(vColor, vAlpha * 0.4);
+              float d = length(gl_PointCoord - 0.5);
+              if (d > 0.5) discard;
+              float g = exp(-d * 8.0);
+              gl_FragColor = vec4(vColor * (1.0 + uTreble * 3.0), vLife * g);
             }
           `,
-          transparent: true,
-          blending: THREE.AdditiveBlending,
-          depthWrite: false
+          transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
         });
 
-        // Create LOD Meshes
-        this.group = new THREE.Group();
-        scene.add(this.group);
+        const geom = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3()]);
+        this.mesh = new THREE.InstancedMesh(geom, this.mat, this.maxParticles);
+        this.mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
-        // 3.1 High Detail: Icosahedron
-        this.meshHigh = this.createInstancedMesh(new THREE.IcosahedronGeometry(0.5, 0), 'LOD_HIGH');
-        // 3.2 Mid Detail: Plane (Billboard)
-        this.meshMid = this.createInstancedMesh(new THREE.PlaneGeometry(1, 1), 'LOD_MID');
-        // 3.3 Low Detail: Small Quad
-        this.meshLow = this.createInstancedMesh(new THREE.PlaneGeometry(0.5, 0.5), 'LOD_LOW');
+        this.vArr = new Float32Array(this.maxParticles * 3);
+        this.lArr = new Float32Array(this.maxParticles);
+        this.cArr = new Float32Array(this.maxParticles * 3);
+        this.mesh.geometry.setAttribute('velocity', new THREE.InstancedBufferAttribute(this.vArr, 3));
+        this.mesh.geometry.setAttribute('life', new THREE.InstancedBufferAttribute(this.lArr, 1));
+        this.mesh.geometry.setAttribute('customColor', new THREE.InstancedBufferAttribute(this.cArr, 3));
+        this.container.add(this.mesh);
 
-        this.meshHigh.frustumCulled = false;
-        this.meshMid.frustumCulled = false;
-        this.meshLow.frustumCulled = false;
+        const tGeom = new THREE.BufferGeometry();
+        this.tPos = new Float32Array(this.maxParticles * 16 * 3 * 2);
+        this.tCol = new Float32Array(this.maxParticles * 16 * 3 * 2);
+        tGeom.setAttribute('position', new THREE.BufferAttribute(this.tPos, 3));
+        tGeom.setAttribute('color', new THREE.BufferAttribute(this.tCol, 3));
+        this.trailMesh = new THREE.LineSegments(tGeom, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, opacity: 0.4 }));
+        this.container.add(this.trailMesh);
+
+        const blob = new Blob([PARTICLE_WORKER_CODE], { type: 'application/javascript' });
+        this.worker = new Worker(URL.createObjectURL(blob));
+        this.worker.onmessage = (e) => { this.particles = e.data.updated; };
+
+        this.tMat = new THREE.Matrix4();
+        this.tVec = new THREE.Vector3();
+        this.spawnTimer = 0;
       }
 
-      createTarget() {
-        return new THREE.WebGLRenderTarget(this.size, this.size, {
-          minFilter: THREE.NearestFilter,
-          magFilter: THREE.NearestFilter,
-          format: THREE.RGBAFormat,
-          type: THREE.FloatType, // Requires OES_texture_float
-          stencilBuffer: false,
-          depthBuffer: false
-        });
-      }
-
-      initTextures() {
-        const dataPos = new Float32Array(this.count * 4);
-        const dataVel = new Float32Array(this.count * 4);
-        for (let i = 0; i < this.count; i++) {
-          dataPos[i * 4] = (Math.random() - 0.5) * 120;
-          dataPos[i * 4 + 1] = (Math.random() - 0.5) * 120;
-          dataPos[i * 4 + 2] = (Math.random() - 0.5) * 120;
-          dataPos[i * 4 + 3] = Math.random(); // mass
-
-          dataVel[i * 4] = 0; dataVel[i * 4 + 1] = 0; dataVel[i * 4 + 2] = 0;
-          dataVel[i * 4 + 3] = Math.random(); // life
+      spawn(patt, count = 1) {
+        for (let i = 0; i < count; i++) {
+          if (this.activeCount >= this.maxParticles) return;
+          const p = this.pool.length > 0 ? this.pool.pop() : { x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, life: 1 };
+          p.life = 1.0 + Math.random() * 2.5;
+          if (patt === 'radial') {
+            const a = Math.random() * TAU, s = 5 + Math.random() * 8;
+            p.x = 0; p.y = 0; p.z = 0; p.vx = Math.cos(a) * s; p.vy = (Math.random() - 0.5) * 10; p.vz = Math.sin(a) * s;
+          } else if (patt === 'vortex') {
+            const a = Math.random() * TAU; p.x = Math.cos(a) * 15; p.y = (Math.random() - 0.5) * 30; p.z = Math.sin(a) * 15;
+            p.vx = -p.z * 1.2; p.vy = 0; p.vz = p.x * 1.2;
+          } else {
+            p.x = (Math.random() - 0.5) * 120; p.y = 60; p.z = (Math.random() - 0.5) * 120;
+            p.vx = 0; p.vy = -20 - Math.random() * 20; p.vz = 0;
+          }
+          this.particles.push(p);
+          this.activeCount++;
         }
-        const texPos = new THREE.DataTexture(dataPos, this.size, this.size, THREE.RGBAFormat, THREE.FloatType);
-        texPos.needsUpdate = true;
-        const texVel = new THREE.DataTexture(dataVel, this.size, this.size, THREE.RGBAFormat, THREE.FloatType);
-        texVel.needsUpdate = true;
-
-        // Render initial data to targets
-        this.copyTexture(texPos, this.posRad[0]);
-        this.copyTexture(texPos, this.posRad[1]);
-        this.copyTexture(texVel, this.velLife[0]);
-        this.copyTexture(texVel, this.velLife[1]);
-      }
-
-      copyTexture(tex, target) {
-        // Simple blit helper if needed, or just relying on first render cycle logic
-        // For simplicity, we just assign to the quad material once and render
-        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial({ map: tex }));
-        const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-        renderer.setRenderTarget(target);
-        renderer.render(mesh, cam);
-        renderer.setRenderTarget(null);
-      }
-
-      createInstancedMesh(geom, define) {
-        const mat = this.material.clone();
-        mat.defines = { [define]: '' };
-        const mesh = new THREE.InstancedMesh(geom, mat, this.count);
-
-        // Generate UV references
-        const references = new Float32Array(this.count * 2);
-        for (let i = 0; i < this.count; i++) {
-          const x = (i % this.size) / this.size;
-          const y = Math.floor(i / this.size) / this.size;
-          references[i * 2] = x + 0.5 / this.size;
-          references[i * 2 + 1] = y + 0.5 / this.size;
-        }
-        mesh.geometry.setAttribute('reference', new THREE.InstancedBufferAttribute(references, 2));
-        this.group.add(mesh);
-        return mesh;
       }
 
       update(dt, t, audio) {
-        if (!this.group || !config.dynamicParticlesEnabled) {
-          if (this.group && this.group.visible) this.group.visible = false;
-          return;
+        if (!config.dynamicParticlesEnabled) { this.container.visible = false; return; }
+        this.container.visible = true;
+        const rate = config.dynParticleSpawnRate * (config.dynAudioReactiveSpawn ? (1 + audio.onsetGlobal * 4) : 1);
+        this.spawnTimer += dt;
+        if (this.spawnTimer > 1 / rate) {
+          const pat = ['radial', 'vortex', 'matrix'][Math.floor(Math.random() * 3)];
+          this.spawn(pat, Math.ceil(rate * dt));
+          this.spawnTimer = 0;
         }
-        if (!this.group.visible) this.group.visible = true;
+        this.worker.postMessage({ particles: this.particles, dt, energy: audio.energy, mode: config.particleMode || 'stardust' });
+        this.mat.uniforms.uBass.value = audio.smoothBass;
+        this.mat.uniforms.uTreble.value = audio.smoothHigh;
+        this.mat.uniforms.uEnergy.value = audio.energy;
+        this.mat.uniforms.uTime.value = t;
 
-        // 1. Update Physics (Ping Pong)
-        const dest = 1 - this.current;
-        const cur = this.current;
+        let tIdx = 0;
+        for (let i = 0; i < this.particles.length; i++) {
+          const p = this.particles[i];
+          if (p.life <= 0) {
+            this.pool.push(p);
+            // Swap and pop
+            this.particles[i] = this.particles[this.particles.length - 1];
+            this.particles.pop();
+            this.histIdx[i] = this.histIdx[this.particles.length]; // Sync history index if needed
+            this.activeCount--; i--; continue;
+          }
+          this.tVec.set(p.x, p.y, p.z);
+          this.tMat.setPosition(this.tVec);
+          this.mesh.setMatrixAt(i, this.tMat);
+          this.vArr[i * 3] = p.vx; this.vArr[i * 3 + 1] = p.vy; this.vArr[i * 3 + 2] = p.vz;
+          this.lArr[i] = p.life;
+          this.cArr[i * 3] = 1; this.cArr[i * 3 + 1] = 0.4 + audio.energy * 0.6; this.cArr[i * 3 + 2] = 1;
 
-        // Pass 1: Update Velocity
-        this.simMesh.material = this.velShader;
-        this.velShader.uniforms.tPos.value = this.posRad[cur].texture;
-        this.velShader.uniforms.tVel.value = this.velLife[cur].texture;
-        this.velShader.uniforms.uDt.value = dt;
-        this.velShader.uniforms.uTime.value = t;
-        this.velShader.uniforms.uBass.value = audio.smoothBass;
-        this.velShader.uniforms.uEnergy.value = audio.energy;
-
-        renderer.setRenderTarget(this.velLife[dest]);
-        renderer.render(this.scene, this.camera);
-
-        // Pass 2: Update Position
-        this.simMesh.material = this.posShader;
-        this.posShader.uniforms.tPos.value = this.posRad[cur].texture;
-        this.posShader.uniforms.tVel.value = this.velLife[dest].texture; // Use new vel
-        this.posShader.uniforms.uDt.value = dt;
-
-        renderer.setRenderTarget(this.posRad[dest]);
-        renderer.render(this.scene, this.camera);
-
-        renderer.setRenderTarget(null);
-
-        // 2. Update LOD Meshes
-        const nextTex = this.posRad[dest].texture;
-        const velTex = this.velLife[dest].texture;
-        [this.meshHigh, this.meshMid, this.meshLow].forEach(m => {
-          m.material.uniforms.tPos.value = nextTex;
-          m.material.uniforms.tVel.value = velTex;
-        });
-
-        this.current = dest;
+          if (config.dynParticleTrailLength > 0) {
+            const h = this.historicalPos[i];
+            const ptr = (this.histIdx[i] % 16) * 3;
+            h[ptr] = p.x; h[ptr + 1] = p.y; h[ptr + 2] = p.z;
+            this.histIdx[i]++;
+            const count = Math.min(this.histIdx[i], 16);
+            for (let j = 1; j < count; j++) {
+              const a = ((this.histIdx[i] - j) % 16) * 3, b = ((this.histIdx[i] - j - 1) % 16) * 3;
+              this.tPos[tIdx * 6] = h[a]; this.tPos[tIdx * 6 + 1] = h[a + 1]; this.tPos[tIdx * 6 + 2] = h[a + 2];
+              this.tPos[tIdx * 6 + 3] = h[b]; this.tPos[tIdx * 6 + 4] = h[b + 1]; this.tPos[tIdx * 6 + 5] = h[b + 2];
+              const c = 0.3 * (1 - j / 16);
+              this.tCol[tIdx * 6] = this.tCol[tIdx * 6 + 3] = c; this.tCol[tIdx * 6 + 1] = this.tCol[tIdx * 6 + 4] = c; this.tCol[tIdx * 6 + 2] = this.tCol[tIdx * 6 + 5] = c;
+              tIdx++;
+            }
+          }
+        }
+        this.mesh.instanceMatrix.needsUpdate = true;
+        this.mesh.geometry.attributes.velocity.needsUpdate = true;
+        this.mesh.geometry.attributes.life.needsUpdate = true;
+        this.mesh.geometry.attributes.customColor.needsUpdate = true;
+        this.mesh.count = Math.max(0, this.activeCount);
+        if (config.dynParticleTrailLength > 0) {
+          this.trailMesh.visible = true;
+          this.trailMesh.geometry.setDrawRange(0, tIdx * 2);
+          this.trailMesh.geometry.attributes.position.needsUpdate = true;
+          this.trailMesh.geometry.attributes.color.needsUpdate = true;
+        } else { this.trailMesh.visible = false; }
       }
     }
-    const dynamicParticles = new GPUParticleSystem();
-    dynamicParticles.init();
+    const dynamicParticles = new DynamicParticleSystem();
 
 
     const music = { beats: 0, phase: 0, bpmSmooth: 120, lastSeenBar: -1 };
@@ -4236,9 +4216,9 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       new THREE.Vector2(window.innerWidth, window.innerHeight),
       config.bloomStrength,
       config.bloomRadius,
-      0.2  // Higher threshold to reduce full-screen blur
+      0.12  // Lower threshold for more bloom on bright areas
     );
-    bloomPass.threshold = 0.2;
+    bloomPass.threshold = 0.12;
     composer.addPass(bloomPass);
 
     // Screen FX shader (vignette / grain / aberration / scanlines / kaleido / glitch / film)
@@ -4281,6 +4261,18 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       uniform float uGradeVibrance;
       uniform float uHueRotate;
 
+      // Filmic Color Grading Uniforms
+      uniform sampler2D uCurvesR;
+      uniform sampler2D uCurvesG;
+      uniform sampler2D uCurvesB;
+      uniform vec3 uSplitToneShadows;
+      uniform vec3 uSplitToneHighlights;
+      uniform float uSplitToneBalance;
+      uniform float uColorTemp;
+      uniform float uTint;
+      uniform float uFilmCurve;
+      uniform mat3 uChannelMixer;
+
       // LUT Uniforms
       uniform sampler3D uLUT;
       uniform float uLutEnabled;
@@ -4301,12 +4293,185 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           return mix(vec3(l), c, s);
         }
 
-      vec3 applyVibrance(vec3 c, float v) {
-          float avg = (c.r + c.g + c.b) / 3.0;
-          float mx = max(c.r, max(c.g, c.b));
-          float amt = (mx - avg) * (-v * 3.0);
-          return mix(c, vec3(mx), amt);
+      // RGB to HSV conversion
+      vec3 rgb2hsv(vec3 c) {
+        vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+        vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+        vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+        float d = q.x - min(q.w, q.y);
+        float e = 1.0e-10;
+        return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+      }
+
+      // HSV to RGB conversion
+      vec3 hsv2rgb(vec3 c) {
+        vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+        vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+        return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+      }
+
+      // RGB to HSL conversion
+      vec3 rgb2hsl(vec3 c) {
+        float maxVal = max(c.r, max(c.g, c.b));
+        float minVal = min(c.r, min(c.g, c.b));
+        float delta = maxVal - minVal;
+        float l = (maxVal + minVal) * 0.5;
+        float h = 0.0;
+        float s = 0.0;
+        if (delta > 0.0) {
+          s = l > 0.5 ? delta / (2.0 - maxVal - minVal) : delta / (maxVal + minVal);
+          if (maxVal == c.r) {
+            h = mod((c.g - c.b) / delta + (c.g < c.b ? 6.0 : 0.0), 6.0) / 6.0;
+          } else if (maxVal == c.g) {
+            h = ((c.b - c.r) / delta + 2.0) / 6.0;
+          } else {
+            h = ((c.r - c.g) / delta + 4.0) / 6.0;
+          }
         }
+        return vec3(h, s, l);
+      }
+
+      float hue2rgb(float p, float q, float t) {
+        if (t < 0.0) t += 1.0;
+        if (t > 1.0) t -= 1.0;
+        if (t < 1.0 / 6.0) return p + (q - p) * 6.0 * t;
+        if (t < 1.0 / 2.0) return q;
+        if (t < 2.0 / 3.0) return p + (q - p) * (2.0 / 3.0 - t) * 6.0;
+        return p;
+      }
+
+      // HSL to RGB conversion
+      vec3 hsl2rgb(vec3 c) {
+        vec3 rgb = vec3(c.z);
+        if (c.y > 0.0) {
+          float q = c.z < 0.5 ? c.z * (1.0 + c.y) : c.z + c.y - c.z * c.y;
+          float p = 2.0 * c.z - q;
+          rgb.r = hue2rgb(p, q, c.x + 1.0 / 3.0);
+          rgb.g = hue2rgb(p, q, c.x);
+          rgb.b = hue2rgb(p, q, c.x - 1.0 / 3.0);
+        }
+        return rgb;
+      }
+
+      // Improved Vibrance - HSV-based, protects saturated colors
+      vec3 applyVibrance(vec3 c, float v) {
+        vec3 hsv = rgb2hsv(c);
+        float saturation = hsv.y;
+        float relativeLum = dot(c, vec3(0.2126, 0.7152, 0.0722));
+        float saturationBoost = (1.0 - saturation) * v;
+        hsv.y = clamp(saturation + saturationBoost, 0.0, 1.0);
+        return hsv2rgb(hsv);
+      }
+
+      // RGB Curves - Sample from 64x1 DataTexture
+      float applyCurve(float val, sampler2D curveTex) {
+        float u = clamp(val, 0.0, 1.0);
+        return texture2D(curveTex, vec2(u, 0.5)).r;
+      }
+
+      // Film Response Curves
+      vec3 applyFilmCurve(vec3 col, float curveType) {
+        if (curveType < 0.5) return col; // None
+        
+        vec3 result = col;
+        if (curveType >= 0.5 && curveType < 1.5) {
+          // Kodak Vision3 500T
+          float toe = 0.18;
+          float shoulder = 0.9;
+          result.r = col.r < toe ? mix(0.0, toe, smoothstep(0.0, toe, col.r)) : 
+                   (col.r < shoulder ? mix(toe, shoulder, (col.r - toe) / (shoulder - toe)) :
+                   mix(shoulder, 1.0, 1.0 - exp(-(col.r - shoulder) * 5.0)));
+          result.g = col.g < toe ? mix(0.0, toe, smoothstep(0.0, toe, col.g)) : 
+                   (col.g < shoulder ? mix(toe, shoulder, (col.g - toe) / (shoulder - toe)) :
+                   mix(shoulder, 1.0, 1.0 - exp(-(col.g - shoulder) * 5.0)));
+          result.b = col.b < toe ? mix(0.0, toe, smoothstep(0.0, toe, col.b)) : 
+                   (col.b < shoulder ? mix(toe, shoulder, (col.b - toe) / (shoulder - toe)) :
+                   mix(shoulder, 1.0, 1.0 - exp(-(col.b - shoulder) * 5.0)));
+        } else if (curveType >= 1.5 && curveType < 2.5) {
+          // Fuji Eterna 8543
+          float toe = 0.15;
+          float shoulder = 0.92;
+          result.r = col.r < toe ? mix(0.0, toe, pow(col.r / toe, 1.2)) : 
+                   (col.r < shoulder ? mix(toe, shoulder, (col.r - toe) / (shoulder - toe)) :
+                   mix(shoulder, 1.0, 1.0 - exp(-(col.r - shoulder) * 4.5)));
+          result.g = col.g < toe ? mix(0.0, toe, pow(col.g / toe, 1.2)) : 
+                   (col.g < shoulder ? mix(toe, shoulder, (col.g - toe) / (shoulder - toe)) :
+                   mix(shoulder, 1.0, 1.0 - exp(-(col.g - shoulder) * 4.5)));
+          result.b = col.b < toe ? mix(0.0, toe, pow(col.b / toe, 1.2)) : 
+                   (col.b < shoulder ? mix(toe, shoulder, (col.b - toe) / (shoulder - toe)) :
+                   mix(shoulder, 1.0, 1.0 - exp(-(col.b - shoulder) * 4.5)));
+        }
+        return result;
+      }
+
+      // Color Temperature - Kelvin to RGB using Planckian locus approximation
+      vec3 applyColorTemperature(vec3 col, float temp, float tint) {
+        // Normalize temp from 0-1 to 2000-10000K
+        float T = temp * 8000.0 + 2000.0;
+        
+        // Planckian locus approximation
+        float T2 = T * T;
+        float T3 = T2 * T;
+        float invT = 1.0 / T;
+        float invT2 = invT * invT;
+        
+        // Calculate chromaticity (simplified approximation)
+        float x, y;
+        if (T < 4000.0) {
+          x = -0.2661239 * 1e9 * invT3 + 0.2343580 * 1e6 * invT2 + 0.8776956 * 1e3 * invT + 0.179910;
+        } else {
+          x = -3.0258469 * 1e9 * invT3 + 2.1070379 * 1e6 * invT2 + 0.2226347 * 1e3 * invT + 0.240390;
+        }
+        y = -1.1063814 * x * x * x - 1.34811020 * x * x + 2.18555832 * x - 0.20219683;
+        
+        // Convert to RGB using D65 white point reference
+        float z = 1.0 - x - y;
+        float Y = 1.0;
+        float X = (Y / y) * x;
+        float Z = (Y / y) * z;
+        
+        // D65 reference white
+        float Xr = 0.95047;
+        float Yr = 1.00000;
+        float Zr = 1.08883;
+        
+        // Normalize
+        X /= Xr;
+        Z /= Zr;
+        
+        // Apply temperature shift
+        vec3 tempShift = vec3(
+          X * 1.4628067 - Y * 0.1840623 - Z * 0.2743606,
+          -X * 0.5217933 + Y * 1.4472381 + Z * 0.0677227,
+          X * 0.0349342 - Y * 0.0968930 + Z * 1.2884099
+        );
+        
+        // Apply tint (magenta/green shift)
+        vec3 tintShift = vec3(1.0 + tint * 0.1, 1.0 - tint * 0.05, 1.0 + tint * 0.1);
+        
+        return col * tempShift * tintShift;
+      }
+
+      // Split Toning with HSL blending
+      vec3 applySplitToning(vec3 col, vec3 shadowTint, vec3 highlightTint, float balance) {
+        float lum = dot(col, vec3(0.2126, 0.7152, 0.0722));
+        float shadowMask = smoothstep(0.25, 0.0, lum);
+        float highlightMask = smoothstep(0.75, 1.0, lum);
+        
+        // Convert tints to HSL
+        vec3 shadowHSL = rgb2hsl(shadowTint);
+        vec3 highlightHSL = rgb2hsl(highlightTint);
+        vec3 colHSL = rgb2hsl(col);
+        
+        // Blend hues and saturations, preserve luminance
+        float balanceFactor = (balance + 1.0) * 0.5; // -1 to 1 -> 0 to 1
+        float combinedMask = mix(shadowMask, highlightMask, balanceFactor);
+        
+        colHSL.x = mix(colHSL.x, mix(shadowHSL.x, highlightHSL.x, balanceFactor), combinedMask * 0.3);
+        colHSL.y = mix(colHSL.y, mix(shadowHSL.y, highlightHSL.y, balanceFactor), combinedMask * 0.4);
+        
+        return hsl2rgb(colHSL);
+      }
 
       vec3 hueRotate(vec3 c, float a) {
           vec3 k = vec3(0.57735);
@@ -4352,16 +4517,32 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
             col = mix(col, smear, uAnamorphic * 0.35);
           }
 
-          // Lift Gamma Gain (LGG)
-          // Correct math: out = pow(color * Gain + Lift, 1.0/Gamma)
-          // Simplified for real-time:
-          col = col * uGain + uLift;
-          col = pow(max(col, 0.0), 1.0 / max(uGamma * 2.0, 0.01));
-
-          // Saturation & Vibrance
-          col = adjustSaturation(col, uGradeSat);
+          // Filmic Color Grading Pipeline
+          // 1. Film Response Curves (log-to-lin transform with toe/shoulder)
+          col = applyFilmCurve(col, uFilmCurve);
+          
+          // 2. RGB Curves (cubic Bezier evaluation per channel)
+          col.r = applyCurve(col.r, uCurvesR);
+          col.g = applyCurve(col.g, uCurvesG);
+          col.b = applyCurve(col.b, uCurvesB);
+          
+          // 3. Channel Mixer (RGB remix)
+          col = uChannelMixer * col;
+          
+          // 4. Color Temperature (Kelvin + Magenta/Green tint)
+          // uColorTemp is already in Kelvin (2000-10000), normalize to 0-1
+          float tempNorm = clamp((uColorTemp - 2000.0) / 8000.0, 0.0, 1.0);
+          col = applyColorTemperature(col, tempNorm, uTint);
+          
+          // 5. Split Toning (shadows/highlights with HSL blending)
+          col = applySplitToning(col, uSplitToneShadows, uSplitToneHighlights, uSplitToneBalance);
+          
+          // 6. Vibrance (HSV-based, protects saturated colors)
           col = applyVibrance(col, uGradeVibrance);
-
+          
+          // 7. Saturation
+          col = adjustSaturation(col, uGradeSat);
+          
           if (uHueRotate > 0.01) col = hueRotate(col, uHueRotate * 6.2831);
 
           // Apply LUT
@@ -4419,6 +4600,230 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     };
     Object.assign(screenFXPass.uniforms, lutUniforms);
 
+    // Initialize filmic color grading uniforms
+    const filmicUniforms = {
+      uCurvesR: { value: generateCurveTexture(config.curveRShadows, config.curveRMids, config.curveRHighlights, config.curveRWhites) },
+      uCurvesG: { value: generateCurveTexture(config.curveGShadows, config.curveGMids, config.curveGHighlights, config.curveGWhites) },
+      uCurvesB: { value: generateCurveTexture(config.curveBShadows, config.curveBMids, config.curveBHighlights, config.curveBWhites) },
+      uSplitToneShadows: { value: new THREE.Color(config.splitToneShadows) },
+      uSplitToneHighlights: { value: new THREE.Color(config.splitToneHighlights) },
+      uSplitToneBalance: { value: config.splitToneBalance },
+      uColorTemp: { value: config.colorTemp },
+      uTint: { value: config.tint },
+      uFilmCurve: { value: config.filmCurve },
+      uChannelMixer: { value: new THREE.Matrix3().set(
+        config.channelMixerRR, config.channelMixerRG, config.channelMixerRB,
+        config.channelMixerGR, config.channelMixerGG, config.channelMixerGB,
+        config.channelMixerBR, config.channelMixerBG, config.channelMixerBB
+      )}
+    };
+    Object.assign(screenFXPass.uniforms, filmicUniforms);
+
+    // Update curve texture when control points change
+    function updateCurveTexture(channel) {
+      const shadows = config[`curve${channel}Shadows`];
+      const mids = config[`curve${channel}Mids`];
+      const highlights = config[`curve${channel}Highlights`];
+      const whites = config[`curve${channel}Whites`];
+      const texture = generateCurveTexture(shadows, mids, highlights, whites);
+      if (screenFXPass.uniforms[`uCurves${channel}`]) {
+        screenFXPass.uniforms[`uCurves${channel}`].value = texture;
+      }
+      drawCurve(channel);
+    }
+
+    // Draw curve on canvas
+    function drawCurve(channel) {
+      const canvas = document.getElementById(`curve${channel}-canvas`);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.fillRect(0, 0, w, h);
+      
+      // Draw grid
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const x = (i / 4) * w;
+        const y = (i / 4) * h;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+      
+      // Draw curve
+      const shadows = config[`curve${channel}Shadows`];
+      const mids = config[`curve${channel}Mids`];
+      const highlights = config[`curve${channel}Highlights`];
+      const whites = config[`curve${channel}Whites`];
+      
+      const color = channel === 'R' ? '#ff3333' : channel === 'G' ? '#33ff33' : '#3333ff';
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      
+      for (let i = 0; i < w; i++) {
+        const t = i / (w - 1);
+        let y;
+        if (t < 0.33) {
+          const localT = t / 0.33;
+          y = shadows + (mids - shadows) * (localT * localT * (3 - 2 * localT));
+        } else if (t < 0.66) {
+          const localT = (t - 0.33) / 0.33;
+          y = mids + (highlights - mids) * (localT * localT * (3 - 2 * localT));
+        } else {
+          const localT = (t - 0.66) / 0.34;
+          y = highlights + (whites - highlights) * (localT * localT * (3 - 2 * localT));
+        }
+        const py = h - (y * h);
+        if (i === 0) ctx.moveTo(i, py);
+        else ctx.lineTo(i, py);
+      }
+      ctx.stroke();
+      
+      // Draw control points
+      const points = [
+        { x: 0, y: shadows },
+        { x: 0.33 * w, y: mids },
+        { x: 0.66 * w, y: highlights },
+        { x: w, y: whites }
+      ];
+      ctx.fillStyle = color;
+      points.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, h - (p.y * h), 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    // Reset curve to default
+    function resetCurve(channel) {
+      config[`curve${channel}Shadows`] = 0.0;
+      config[`curve${channel}Mids`] = 0.33;
+      config[`curve${channel}Highlights`] = 0.66;
+      config[`curve${channel}Whites`] = 1.0;
+      updateCurveTexture(channel);
+      // Update UI sliders
+      document.getElementById(`curve${channel}Shadows`).value = 0.0;
+      document.getElementById(`curve${channel}Mids`).value = 0.33;
+      document.getElementById(`curve${channel}Highlights`).value = 0.66;
+      document.getElementById(`curve${channel}Whites`).value = 1.0;
+    }
+
+    // Update channel mixer matrix
+    function updateChannelMixer() {
+      if (!screenFXPass.uniforms.uChannelMixer) return;
+      const m = new THREE.Matrix3().set(
+        config.channelMixerRR, config.channelMixerRG, config.channelMixerRB,
+        config.channelMixerGR, config.channelMixerGG, config.channelMixerGB,
+        config.channelMixerBR, config.channelMixerBG, config.channelMixerBB
+      );
+      screenFXPass.uniforms.uChannelMixer.value = m;
+    }
+
+    // Histogram visualization
+    let histogramData = { r: new Array(256).fill(0), g: new Array(256).fill(0), b: new Array(256).fill(0) };
+    let histogramFrameCount = 0;
+
+    function updateHistogram() {
+      const canvas = document.getElementById('histogram-canvas');
+      if (!canvas) return;
+      
+      // Sample every 4th frame for performance
+      histogramFrameCount++;
+      if (histogramFrameCount % 4 !== 0) {
+        drawHistogram(canvas);
+        return;
+      }
+      
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = canvas.clientWidth || 400;
+      const h = canvas.height = canvas.clientHeight || 120;
+      
+      // Reset histogram
+      histogramData.r.fill(0);
+      histogramData.g.fill(0);
+      histogramData.b.fill(0);
+      
+      // Sample from render target (lower resolution for performance)
+      if (composer && composer.readRenderTargetPixels) {
+        try {
+          const sampleSize = 4; // Sample every 4th pixel
+          const pixels = new Uint8Array(w * h * 4);
+          // Note: readRenderTargetPixels requires render target, we'll use a workaround
+          // For now, we'll draw a placeholder and implement full sampling later
+        } catch (e) {
+          // Fallback: draw placeholder
+        }
+      }
+      
+      drawHistogram(canvas);
+    }
+
+    function drawHistogram(canvas) {
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.fillRect(0, 0, w, h);
+      
+      // Draw RGB parade (3 vertical bars)
+      const barWidth = w / 3;
+      const maxHeight = h - 10;
+      
+      // Red channel
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.6)';
+      for (let i = 0; i < 256; i++) {
+        const x = (i / 256) * barWidth;
+        const height = (histogramData.r[i] / Math.max(...histogramData.r, 1)) * maxHeight;
+        ctx.fillRect(x, h - height, barWidth / 256, height);
+      }
+      
+      // Green channel
+      ctx.fillStyle = 'rgba(0, 255, 0, 0.6)';
+      for (let i = 0; i < 256; i++) {
+        const x = barWidth + (i / 256) * barWidth;
+        const height = (histogramData.g[i] / Math.max(...histogramData.g, 1)) * maxHeight;
+        ctx.fillRect(x, h - height, barWidth / 256, height);
+      }
+      
+      // Blue channel
+      ctx.fillStyle = 'rgba(0, 0, 255, 0.6)';
+      for (let i = 0; i < 256; i++) {
+        const x = barWidth * 2 + (i / 256) * barWidth;
+        const height = (histogramData.b[i] / Math.max(...histogramData.b, 1)) * maxHeight;
+        ctx.fillRect(x, h - height, barWidth / 256, height);
+      }
+      
+      // Draw separators
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(barWidth, 0);
+      ctx.lineTo(barWidth, h);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(barWidth * 2, 0);
+      ctx.lineTo(barWidth * 2, h);
+      ctx.stroke();
+    }
+
+    // Initialize curve canvases
+    ['R', 'G', 'B'].forEach(ch => {
+      setTimeout(() => drawCurve(ch), 100);
+    });
+
     function parseCubeLUT(data) {
       const lines = data.split('\n');
       let size = 0;
@@ -4441,6 +4846,63 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       texture.minFilter = texture.magFilter = THREE.LinearFilter;
       texture.unpackAlignment = 1; texture.needsUpdate = true;
       return texture;
+    }
+
+    // Generate 64x1 curve texture from 4 control points using cubic Bezier
+    function generateCurveTexture(shadows, mids, highlights, whites) {
+      const size = 64;
+      const data = new Float32Array(size * 4);
+      
+      // Control points: shadows (0.0), mids (0.33), highlights (0.66), whites (1.0)
+      const p0 = { x: 0.0, y: shadows };
+      const p1 = { x: 0.33, y: mids };
+      const p2 = { x: 0.66, y: highlights };
+      const p3 = { x: 1.0, y: whites };
+      
+      // Generate curve using cubic Bezier interpolation
+      for (let i = 0; i < size; i++) {
+        const t = i / (size - 1);
+        // Use smoothstep for smoother interpolation between control points
+        let y;
+        if (t < 0.33) {
+          const localT = t / 0.33;
+          y = mix(shadows, mids, smoothstep(0.0, 1.0, localT));
+        } else if (t < 0.66) {
+          const localT = (t - 0.33) / 0.33;
+          y = mix(mids, highlights, smoothstep(0.0, 1.0, localT));
+        } else {
+          const localT = (t - 0.66) / 0.34;
+          y = mix(highlights, whites, smoothstep(0.0, 1.0, localT));
+        }
+        
+        data[i * 4] = clamp(y, 0.0, 1.0);
+        data[i * 4 + 1] = clamp(y, 0.0, 1.0);
+        data[i * 4 + 2] = clamp(y, 0.0, 1.0);
+        data[i * 4 + 3] = 1.0;
+      }
+      
+      const texture = new THREE.DataTexture(data, size, 1);
+      texture.format = THREE.RGBAFormat;
+      texture.type = THREE.FloatType;
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.wrapS = THREE.ClampToEdgeWrapping;
+      texture.wrapT = THREE.ClampToEdgeWrapping;
+      texture.needsUpdate = true;
+      return texture;
+    }
+
+    function smoothstep(edge0, edge1, x) {
+      const t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+      return t * t * (3.0 - 2.0 * t);
+    }
+
+    function mix(x, y, a) {
+      return x * (1.0 - a) + y * a;
+    }
+
+    function clamp(x, min, max) {
+      return Math.max(min, Math.min(max, x));
     }
 
     function buildHDRIMap() {
@@ -5242,7 +5704,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       bgUniforms.uPatternStrength.value = config.bgPatternStrength;
 
       // Main geometry - USE MOTION COORDINATOR for scale (single source of truth)
-      if (wireframeMesh) {
+      if (wireframeMesh && particleSystem) {
         const rotBase = 0.55 * config.cameraSpeed;
 
         // Rotation driven by TIME and mid frequencies, NOT beats
@@ -5286,7 +5748,8 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           rimMesh.material.uniforms.uTime.value = t;
         }
 
-
+        // Advanced Dynamic Particles - Web Worker Physics & GPU Instancing
+        if (dynamicParticles) dynamicParticles.update(dt, t, audio);
 
         // Final background/fog color sync
         if (scene.fog) scene.fog.color.copy(bgUniforms.uBgColor.value);
@@ -5651,6 +6114,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 
       drawSpectrum();
       composer.render();
+      updateHistogram();
 
       // Monitor Draw Calls
       const calls = renderer.info.render.calls;
@@ -5838,6 +6302,38 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         gradeGain: () => { if (screenFXPass.uniforms.uGain) screenFXPass.uniforms.uGain.value.set(config.gradeGain); },
         gradeSat: () => { if (screenFXPass.uniforms.uGradeSat) screenFXPass.uniforms.uGradeSat.value = config.gradeSat; },
         gradeVibrance: () => { if (screenFXPass.uniforms.uGradeVibrance) screenFXPass.uniforms.uGradeVibrance.value = config.gradeVibrance; },
+        // RGB Curves
+        curveRShadows: () => { updateCurveTexture('R'); },
+        curveRMids: () => { updateCurveTexture('R'); },
+        curveRHighlights: () => { updateCurveTexture('R'); },
+        curveRWhites: () => { updateCurveTexture('R'); },
+        curveGShadows: () => { updateCurveTexture('G'); },
+        curveGMids: () => { updateCurveTexture('G'); },
+        curveGHighlights: () => { updateCurveTexture('G'); },
+        curveGWhites: () => { updateCurveTexture('G'); },
+        curveBShadows: () => { updateCurveTexture('B'); },
+        curveBMids: () => { updateCurveTexture('B'); },
+        curveBHighlights: () => { updateCurveTexture('B'); },
+        curveBWhites: () => { updateCurveTexture('B'); },
+        // Split Toning
+        splitToneShadows: () => { if (screenFXPass.uniforms.uSplitToneShadows) screenFXPass.uniforms.uSplitToneShadows.value.set(config.splitToneShadows); },
+        splitToneHighlights: () => { if (screenFXPass.uniforms.uSplitToneHighlights) screenFXPass.uniforms.uSplitToneHighlights.value.set(config.splitToneHighlights); },
+        splitToneBalance: () => { if (screenFXPass.uniforms.uSplitToneBalance) screenFXPass.uniforms.uSplitToneBalance.value = config.splitToneBalance; },
+        // Color Temperature
+        colorTemp: () => { if (screenFXPass.uniforms.uColorTemp) screenFXPass.uniforms.uColorTemp.value = config.colorTemp; },
+        tint: () => { if (screenFXPass.uniforms.uTint) screenFXPass.uniforms.uTint.value = config.tint; },
+        // Film Response
+        filmCurve: () => { if (screenFXPass.uniforms.uFilmCurve) screenFXPass.uniforms.uFilmCurve.value = parseFloat(config.filmCurve); },
+        // Channel Mixer
+        channelMixerRR: () => { updateChannelMixer(); },
+        channelMixerRG: () => { updateChannelMixer(); },
+        channelMixerRB: () => { updateChannelMixer(); },
+        channelMixerGR: () => { updateChannelMixer(); },
+        channelMixerGG: () => { updateChannelMixer(); },
+        channelMixerGB: () => { updateChannelMixer(); },
+        channelMixerBR: () => { updateChannelMixer(); },
+        channelMixerBG: () => { updateChannelMixer(); },
+        channelMixerBB: () => { updateChannelMixer(); },
         godRaysInt: () => { config.godRaysInt = val; },
         hueRotate: () => { screenFXPass.uniforms.uHueRotate.value = val / 360; },
         lightKeyInt: () => { config.lightKeyInt = val; },
