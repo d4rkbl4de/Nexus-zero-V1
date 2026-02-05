@@ -47,6 +47,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       --radius-md: clamp(10px, 1.5vw, 16px);
       --radius-sm: clamp(6px, 1vw, 8px);
       --padding-ui: clamp(12px, 2vw, 24px);
+      --gap-ui: clamp(8px, 1.5vw, 20px);
 
       /* Essential Colors */
       --color-primary: #fff;
@@ -240,7 +241,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       flex-direction: column;
       align-items: center;
       padding: var(--padding-ui);
-      gap: 16px;
+      gap: var(--gap-ui);
       width: clamp(300px, 90vw, 1200px);
       background: var(--glass-bg);
       backdrop-filter: var(--glass-blur);
@@ -1285,6 +1286,10 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       z-index: 9;
       filter: blur(1px);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      @media (max-width: 600px) {
+        bottom: 80px;
+      }
     }
 
     .modal-preset {
@@ -1842,6 +1847,10 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     }
 
     .status-bar {
+      @media (max-width: 800px) and (max-height: 500px) {
+        display: none !important;
+      }
+
       position: fixed;
       top: 0;
       left: 0;
@@ -1852,7 +1861,8 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       justify-content: center;
       align-items: center;
       gap: 0px;
-      font-family: 'Space Mono', monospace;
+      font-family: 'Space Mono',
+      monospace;
       font-size: 11px;
       font-weight: 500;
       color: rgba(255, 255, 255, 0.3);
@@ -3967,7 +3977,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         this.queueIndex = -1;
         this.currentTrack = null;
         this.initHost();
-        console.log('[Audius] Service initialized.');
+        // console.log('[Audius] Service initialized.');
       }
 
       async initHost() {
@@ -3976,7 +3986,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           const response = await this.fetchViaProxy('https://api.audius.co');
           if (response && response.data && response.data.length > 0) {
             this.host = response.data[0];
-            console.log('[Audius] Connected to host:', this.host);
+            // console.log('[Audius] Connected to host:', this.host);
           }
         } catch (e) {
           console.warn('[Audius] Host selection failed, using default.', e);
@@ -4088,7 +4098,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           await audioEl.play();
           playing = true;
           this.currentTrack = track;
-          console.log('[Audius] Playing:', track.title);
+          // console.log('[Audius] Playing:', track.title);
           this.updateMediaSession(track);
           this.renderQueue();
           return true;
@@ -4285,7 +4295,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 
         osc.start();
         osc.stop(audioCtx.currentTime + 1);
-        console.log('[Audius] Test beat playing...');
+        // console.log('[Audius] Test beat playing...');
       }
     }
     const streamingService = new StreamingService();
@@ -7237,18 +7247,16 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       const spectrum = document.getElementById('spectrum-overlay');
 
       if (ui) {
-        if (w < 768) { ui.style.padding = '8px'; ui.style.gap = '8px'; }
-        else if (w < 1200) { ui.style.padding = '15px'; ui.style.gap = '12px'; }
-        else { ui.style.padding = '25px'; ui.style.gap = '20px'; }
+        // padding and gap are handled by CSS clamps now
       }
 
       if (status) {
-        status.style.display = (h < 500 && w < 800) ? 'none' : 'flex';
+        // handled by CSS
       }
 
       if (spectrum) {
         spectrum.width = w;
-        spectrum.style.bottom = (w < 600) ? '80px' : '0px';
+        // bottom offset handled by CSS
       }
     }
 
