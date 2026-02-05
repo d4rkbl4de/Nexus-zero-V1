@@ -2591,7 +2591,8 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         <div class="setting">
           <span class="setting-label">Load LUT (.cube)</span>
           <input type="file" id="lutFile" accept=".cube" style="display:none;" />
-          <button class="btn" id="lutChooseBtn" style="width:auto;height:auto;padding:5px 10px;font-size:10px;">Choose File</button>
+          <button class="btn" id="lutChooseBtn" style="width:auto;height:auto;padding:5px 10px;font-size:10px;">Choose
+            File</button>
         </div>
         <div class="setting">
           <span class="setting-label">Color Wheel</span>
@@ -3138,6 +3139,17 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         this.transientSharpness = 0;
         // Harmonic content detection
         this.harmonicRatio = 0;
+        this.stereoWidth = 0; // -1 (mono/out of phase) to 1 (stereo)
+
+        // Advanced Rhythm Tracking
+        this._bpmHistory = [];
+        this._bpmWindowSize = 16;
+        this._lastBpmUpdate = 0;
+
+        // Note Smoothing
+        this._noteHistory = [];
+        this._lastNoteTime = 0;
+        this._confidentNote = '--';
 
         // Optimization buffers
         this._scratchBuffer = new Float32Array(1024);
@@ -3197,8 +3209,23 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         // Adaptive smoothing - less smoothing during transients for sharper response
         const baseAlpha = clamp(smoothingAlpha, 0.05, 0.4);
 
-        // Convert to normalized amplitude with proper dB scaling
+        // normalized amplitude with proper dB scaling
         const hzPerBin = this.sampleRate / this.fftSize;
+
+        // 0. Stereo Correlation / Phase Analysis
+        if (freqL && freqR) {
+          let dot = 0, magL = 0, magR = 0;
+          for (let i = 0; i < N; i += 4) { // Sample across spectrum
+            const l = freqL[i] / 255;
+            const r = freqR[i] / 255;
+            dot += l * r;
+            magL += l * l;
+            magR += r * r;
+          }
+          const mag = Math.sqrt(magL * magR);
+          this.stereoWidth = mag > 1e-6 ? dot / mag : 0;
+        }
+
         // (perf) removed unused prev FFT copy that could cause periodic GC stutters
         for (let i = 0; i < N; i++) {
           // Convert byte to linear amplitude (0-1) with slight curve for better dynamics
@@ -3389,6 +3416,17 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           this.beatCount++;
           if (this.beatCount % 4 === 0) this.barCount++;
           this.beatGate = 100;
+
+          // Stable BPM Tracking: Sliding window filter
+          if (this.lastBeatTime > 0 && interval > 180 && interval < 2500) {
+            const currentBpm = 60000 / interval;
+            this._bpmHistory.push(currentBpm);
+            if (this._bpmHistory.length > this._bpmWindowSize) this._bpmHistory.shift();
+
+            // Pick the median of history for stability
+            const sorted = [...this._bpmHistory].sort((a, b) => a - b);
+            this.bpmSmooth = sorted[Math.floor(sorted.length / 2)];
+          }
         }
         this.beatGate = Math.max(0, this.beatGate - dt * 1000);
 
@@ -3410,7 +3448,20 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           }
           if (maxVal > 0.1) {
             this.rootNote = maxIdx;
-            this.noteName = this._noteName(this.rootNote);
+            const newNote = this._noteName(this.rootNote);
+
+            // Note Smoothing (Hysteresis)
+            this._noteHistory.push(newNote);
+            if (this._noteHistory.length > 8) this._noteHistory.shift();
+
+            // Find most frequent note in history
+            const counts = {};
+            let maxCount = 0, bestNote = this.noteName;
+            for (const n of this._noteHistory) {
+              counts[n] = (counts[n] || 0) + 1;
+              if (counts[n] > maxCount) { maxCount = counts[n]; bestNote = n; }
+            }
+            if (maxCount > 4) this.noteName = bestNote;
           }
         }
         return isBeat;
@@ -3667,6 +3718,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         this.impact = 0;          // Sharp transients (0-1)
         this.swell = 0;           // Sustained energy (0-1), VERY slow
         this.breathe = 0;         // Bar-locked breathing (0-1)
+        this.phrasing = 0;        // 0-1 Accumulation over 4-8 bars (Build-up detection)
 
         // Frequency motion (heavily smoothed)
         this.lowMotion = 0;
@@ -3728,6 +3780,12 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         this._pulseSmooth1 = lerp(this._pulseSmooth1, this._pulseRaw, lerpFast);
         this._pulseSmooth2 = lerp(this._pulseSmooth2, this._pulseSmooth1, lerpMed);
         this.pulse = this._pulseSmooth2;
+
+        // === PHRASING (Build-up detection) ===
+        // Accumulate energy over time, decays slowly. High energy = build-up or drop.
+        const energyAccum = (audio.energy + audio.onsetKick * 0.5) * dt;
+        const phrasingDecay = 1.0 - dt * (0.05 + smoothness * 0.05); // Very slow decay
+        this.phrasing = clamp(this.phrasing * phrasingDecay + energyAccum * 0.15, 0, 1);
 
         // === IMPACT (sharp transients) ===
         // At high smoothness, we basically disable sharp transients
@@ -4385,8 +4443,6 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
               #endif
 
               vAlpha = life;
-              // Use uniform color instead of hardcoded blue
-              // Use uniform color instead of hardcoded blue
               vColor = uColor * (0.5 + 0.5 * length(velData.rgb)*0.1);
 
               if (scale == 0.0 || life <= 0.0) {
@@ -4543,12 +4599,29 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         this.velShader.uniforms.uEnergy.value = audio.energy;
         this.velShader.uniforms.uBeat.value = isBeat ? 1.0 : 0.0;
 
-        // Attractor positions (Circular Orbits)
-        const time = t * 0.5;
-        const radius = 30 + audio.smoothBass * 20;
-        this.velShader.uniforms.uAttractors.value[0].set(Math.cos(time) * radius, Math.sin(time * 0.7) * radius, Math.sin(time) * radius);
-        this.velShader.uniforms.uAttractors.value[1].set(Math.cos(time * 1.3) * -radius, Math.sin(time * 0.8) * radius, Math.cos(time * 0.5) * radius);
-        this.velShader.uniforms.uAttractors.value[2].set(Math.sin(time * 0.9) * radius, Math.cos(time * 1.1) * -radius, Math.sin(time * 1.2) * -radius);
+        // Attractor positions (Fluid Motion driven by Audio Centroid/Energy)
+        const time = t * 0.4;
+        const radius = 25 + (audio.smoothBass + audio.energy) * 15;
+        const centroid = audio.spectralCentroid * 2.0;
+
+        // Attractor 0: Bass & Centroid (Vertical Swirl)
+        this.velShader.uniforms.uAttractors.value[0].set(
+          Math.cos(time) * radius,
+          Math.sin(time * 0.7 + centroid) * radius,
+          Math.sin(time) * radius
+        );
+        // Attractor 1: Mid & Symmetrical (Horizontal Orbit)
+        this.velShader.uniforms.uAttractors.value[1].set(
+          Math.cos(time * 1.3 + centroid) * -radius,
+          Math.sin(time * 0.8) * radius,
+          Math.cos(time * 0.5 + centroid) * radius
+        );
+        // Attractor 2: High & Jitter (Chaotic Drift)
+        this.velShader.uniforms.uAttractors.value[2].set(
+          Math.sin(time * 0.9 + centroid) * radius,
+          Math.cos(time * 1.1 + centroid) * -radius,
+          Math.sin(time * 1.2) * -radius
+        );
 
         const attractMult = config.dynAttractionStrength || 1.0;
         this.velShader.uniforms.uAttractorStrengths.value[0] = audio.smoothBass * attractMult;
@@ -4693,10 +4766,23 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     const shockwaves = [];
 
     function buildMainGeometry() {
-      if (wireframeMesh) scene.remove(wireframeMesh);
-      if (rimMesh) scene.remove(rimMesh);
-      if (particleSystem) scene.remove(particleSystem);
-      if (connectionLines) scene.remove(connectionLines);
+      // (perf) Explicitly dispose of GPU resources to prevent VRAM memory creep
+      if (wireframeMesh) {
+        scene.remove(wireframeMesh);
+        wireframeMesh.geometry.dispose();
+        if (wireframeMesh.material.dispose) wireframeMesh.material.dispose();
+      }
+      if (rimMesh) {
+        scene.remove(rimMesh);
+        rimMesh.geometry.dispose();
+        rimMesh.material.dispose();
+      }
+      if (connectionLines) {
+        scene.remove(connectionLines);
+        connectionLines.geometry.dispose();
+        connectionLines.material.dispose();
+      }
+      if (particleSystem) { scene.remove(particleSystem); particleSystem.geometry.dispose(); particleSystem.material.dispose(); }
 
       const geom = createGeometry(config.form, config.density);
 
@@ -6074,27 +6160,33 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         // Update professional analysis
         if (window.analysisManager) window.analysisManager.update(audio, dt);
 
-        const bpmDisplay = document.getElementById('bpm-display');
-        const energyDisplay = document.getElementById('energy-display');
-        const barDisplay = document.getElementById('bar-display');
-        const noteDisplay = document.getElementById('note-display');
-        if (bpmDisplay) bpmDisplay.textContent = `${audio.getBPM()} BPM`;
-        if (energyDisplay) energyDisplay.textContent = `Energy: ${(audio.energy * 100).toFixed(0)}% `;
-        if (barDisplay) barDisplay.textContent = `Bar: ${audio.barCount} `;
-        if (noteDisplay) noteDisplay.textContent = `Note: ${audio.noteName} `;
+        // Throttled UI display updates (~15 FPS instead of 60)
+        if (typeof animate._nextUIUpdate === 'undefined') animate._nextUIUpdate = 0;
+        if (timestamp >= animate._nextUIUpdate) {
+          animate._nextUIUpdate = timestamp + 66; // ~15 FPS
 
-        // Update progress bar
-        const progressPercent = (audioEl.currentTime / audioEl.duration) * 100 || 0;
-        const audioProgress = document.getElementById('audio-progress');
-        const currentTime = document.getElementById('current-time');
-        const duration = document.getElementById('duration');
-        const zenProgress = document.getElementById('zen-progress');
-        if (audioEl.duration) {
-          if (audioProgress) audioProgress.style.width = `${progressPercent}% `;
-          if (currentTime) currentTime.textContent = formatTime(audioEl.currentTime);
-          if (duration) duration.textContent = formatTime(audioEl.duration);
+          const bpmDisplay = document.getElementById('bpm-display');
+          const energyDisplay = document.getElementById('energy-display');
+          const barDisplay = document.getElementById('bar-display');
+          const noteDisplay = document.getElementById('note-display');
+          if (bpmDisplay) bpmDisplay.textContent = `${audio.getBPM()} BPM`;
+          if (energyDisplay) energyDisplay.textContent = `Energy: ${(audio.energy * 100).toFixed(0)}% `;
+          if (barDisplay) barDisplay.textContent = `Bar: ${audio.barCount} `;
+          if (noteDisplay) noteDisplay.textContent = `Note: ${audio.noteName} `;
+
+          // Update progress bar
+          const progressPercent = (audioEl.currentTime / audioEl.duration) * 100 || 0;
+          const audioProgress = document.getElementById('audio-progress');
+          const currentTime = document.getElementById('current-time');
+          const duration = document.getElementById('duration');
+          const zenProgress = document.getElementById('zen-progress');
+          if (audioEl.duration) {
+            if (audioProgress) audioProgress.style.width = `${progressPercent}% `;
+            if (currentTime) currentTime.textContent = formatTime(audioEl.currentTime);
+            if (duration) duration.textContent = formatTime(audioEl.duration);
+          }
+          if (zenProgress) zenProgress.style.width = `${progressPercent}% `;
         }
-        if (zenProgress) zenProgress.style.width = `${progressPercent}% `;
       }
 
       if (typeof animate._nextOverlayUpdate === 'undefined') animate._nextOverlayUpdate = 0;
@@ -6590,38 +6682,56 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     }
 
     animate();
-    // UI Bindings
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
-        tab.classList.add('active');
-        document.querySelector(`.settings-panel[data-panel="${tab.dataset.tab}"]`).classList.add('active');
-      });
-    });
+    // (new) Declarative Side Effect Registry
+    const uiRegistry = {
+      form: () => buildMainGeometry(),
+      density: () => buildMainGeometry(),
+      particleCount: () => buildMainGeometry(),
+      renderStyle: () => buildMainGeometry(),
+      environment: () => buildMainGeometry(),
+      colorTheme: () => applyColorTheme(),
+      bgPattern: () => setBgPatternFromConfig(),
+      trailMode: () => updateTrailMode(),
+      volume: () => { if (gainNode) gainNode.gain.value = config.volume; },
+      colorBg: () => { scene.fog && scene.fog.color.set(config.colorBg); bgUniforms.uBgColor.value.set(config.colorBg); },
+      colorPrimary: () => { bgUniforms.uAccentA.value.set(config.colorPrimary); },
+      colorSecondary: () => { bgUniforms.uAccentB.value.set(config.colorSecondary); },
+      cameraFov: () => { camera.fov = config.cameraFov; camera.updateProjectionMatrix(); },
+      fogDensity: () => { if (scene.fog) scene.fog.density = config.fogDensity; },
+      ringCount: () => buildRings(),
+      analyzerFftSize: () => {
+        if (audioCtx) {
+          analyser.fftSize = parseInt(config.analyzerFftSize);
+          if (analyserL) analyserL.fftSize = analyser.fftSize;
+          if (analyserR) analyserR.fftSize = analyser.fftSize;
+          freqData = new Uint8Array(analyser.frequencyBinCount);
+          timeData = new Uint8Array(analyser.fftSize);
+          audio.setFFTInfo(analyser.fftSize, audioCtx.sampleRate);
+          if (window.analysisManager) window.analysisManager.onAudioInit();
+        }
+      },
+      showInner: () => { if (innerMesh) innerMesh.visible = config.showInner; },
+      showOuter: () => { if (outerMesh) outerMesh.visible = config.showOuter; },
+      showWaveform: () => { if (waveformRing) waveformRing.visible = config.showWaveform; },
+      showBars: () => { freqBars.forEach(b => b.visible = config.showBars); },
+      showConnections: () => { if (connectionLines) connectionLines.visible = config.showConnections; },
+      showParticles: () => { if (particleSystem) particleSystem.visible = config.showParticles; },
+      showShockwaves: () => { shockwaves.forEach(s => s.mesh.visible = config.showShockwaves); },
+      showLightRays: () => buildLightRays(),
+      showAurora: () => buildAurora(),
+      showEnergyField: () => buildEnergyField(),
+      showOrbitals: () => buildOrbitals(),
+      negativeSpace: () => { if (rimMesh) rimMesh.visible = config.negativeSpace; if (wireframeMesh) wireframeMesh.material.blending = config.negativeSpace ? THREE.NormalBlending : THREE.AdditiveBlending; },
+      showHDRI: () => { scene.environment = config.showHDRI ? hdriMap : null; buildMainGeometry(); },
+      hueRotate: () => { if (screenFXPass.uniforms.uHueRotate) screenFXPass.uniforms.uHueRotate.value = config.hueRotate / 360; },
+      lutInt: () => { if (screenFXPass.uniforms.uLutIntensity) screenFXPass.uniforms.uLutIntensity.value = config.lutInt; },
+      overlayText: () => { updateStreamOverlay(); },
+      showStreamOverlay: () => { updateStreamOverlay(); },
+      showBpmOverlay: () => { updateStreamOverlay(); },
+      showWebcam: () => { toggleWebcam(config.showWebcam); }
+    };
 
-    document.querySelectorAll('.toggle').forEach(toggle => {
-      toggle.addEventListener('click', () => toggle.classList.toggle('active'));
-    });
-
-    // Status Bar Hover & Auto-hide Persistence
-    let statusHideTimer;
-    const statusEl = document.getElementById('status');
-    function resetStatusTimer() {
-      if (playing || !statusEl) return;
-      clearTimeout(statusHideTimer);
-      statusHideTimer = setTimeout(() => {
-        if (statusEl && !statusEl.matches(':hover')) statusEl.classList.remove('playing');
-      }, 3000);
-    }
-    if (statusEl) statusEl.addEventListener('mousemove', resetStatusTimer);
-
-    // Sync new layer sliders to config defaults
-    const _psm = document.getElementById('particleSizeMult'); if (_psm) _psm.value = config.particleSizeMult;
-    const _pbr = document.getElementById('particleBrightness'); if (_pbr) _pbr.value = config.particleBrightness;
-    const _swi = document.getElementById('shockwaveIntensity'); if (_swi) _swi.value = config.shockwaveIntensity;
-    const _swt = document.getElementById('shockwaveImpactThreshold'); if (_swt) _swt.value = config.shockwaveImpactThreshold;
-    // Generic binding handler
+    // Update the handleBinding to use the registry
     function handleBinding(e) {
       const el = e.target;
       const key = el.dataset.bind || el.id;
@@ -6639,7 +6749,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         val = el.value;
       } else if (el.tagName === 'SELECT') {
         val = el.value;
-        if (!isNaN(val) && val !== '' && key !== 'cameraMode' && key !== 'form' && key !== 'renderStyle' && key !== 'environment' && key !== 'bgPattern' && key !== 'filmLook' && key !== 'trailMode' && key !== 'spectrogramMode' && key !== 'spectrogramColor') {
+        if (!isNaN(val) && val !== '' && !['cameraMode', 'form', 'renderStyle', 'environment', 'bgPattern', 'filmLook', 'trailMode', 'spectrogramMode', 'spectrogramColor'].includes(key)) {
           val = parseFloat(val);
         }
       } else {
@@ -6647,175 +6757,36 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       }
 
       const keyMap = {
-        toggleBars: 'showBars',
-        toggleWireframe: 'showWireframeCore',
-        toggleRimGlow: 'showRimGlow',
-        toggleDeepParticles: 'showDeepParticles',
-        toggleRings: 'showRings',
-        toggleModelSpin: 'modelSpinEnabled',
-        toggleModelSpinReactive: 'modelSpinReactive',
-        toggleModelPulse: 'modelPulseEnabled',
-        toggleBarLockColors: 'barLockColors',
-        toggleBeatZoom: 'cameraBeatZoom',
-        toggleAutoAngles: 'cameraAutoAngles',
-        toggleInner: 'showInner',
-        toggleOuter: 'showOuter',
-        toggleWaveform: 'showWaveform',
-        toggleConnections: 'showConnections',
-        toggleParticles: 'showParticles',
-        toggleShockwaves: 'showShockwaves',
-        toggleLightRays: 'showLightRays',
-        toggleAurora: 'showAurora',
-        toggleEnergyField: 'showEnergyField',
-        toggleOrbitals: 'showOrbitals',
-        toggleReactiveBg: 'reactiveBg',
-        toggleSpectrum: 'showSpectrum',
-        toggleAutoPilot: 'autoPilot',
-        toggleBeatFlash: 'beatFlash',
-        toggleColorCycle: 'colorCycle',
-        toggleSynesthesia: 'synesthesia',
-        toggleHarmonicSnap: 'harmonicSnap',
-        toggleNegativeSpace: 'negativeSpace',
-        toggleAnalysisMeters: 'showAnalysisMeters',
-        toggleStereoWave: 'showStereoWave',
-        toggleHDRI: 'showHDRI',
-        toggleDOF: 'dofEnabled',
-        toggleCamPathLoop: 'camPathLoop',
-        toggleDynParticles: 'dynamicParticlesEnabled',
-        toggleDynCollisions: 'dynCollisionEnabled',
-        toggleDynAudioSpawn: 'dynAudioReactiveSpawn',
-        toggleStreamOverlay: 'showStreamOverlay',
-        toggleBpmOverlay: 'showBpmOverlay',
-        toggleWebcam: 'showWebcam',
-        toggleWebcamChroma: 'webcamChromaKey',
-        toggleRepeatQueue: 'repeatQueue',
-        toggleCrossfade: 'crossfade'
+        toggleBars: 'showBars', toggleWireframe: 'showWireframeCore', toggleRimGlow: 'showRimGlow',
+        toggleDeepParticles: 'showDeepParticles', toggleRings: 'showRings', toggleModelSpin: 'modelSpinEnabled',
+        toggleModelSpinReactive: 'modelSpinReactive', toggleModelPulse: 'modelPulseEnabled', toggleBarLockColors: 'barLockColors',
+        toggleBeatZoom: 'cameraBeatZoom', toggleAutoAngles: 'cameraAutoAngles', toggleInner: 'showInner',
+        toggleOuter: 'showOuter', toggleWaveform: 'showWaveform', toggleConnections: 'showConnections',
+        toggleParticles: 'showParticles', toggleShockwaves: 'showShockwaves', toggleLightRays: 'showLightRays',
+        toggleAurora: 'showAurora', toggleEnergyField: 'showEnergyField', toggleOrbitals: 'showOrbitals',
+        toggleReactiveBg: 'reactiveBg', toggleSpectrum: 'showSpectrum', toggleAutoPilot: 'autoPilot',
+        toggleBeatFlash: 'beatFlash', toggleColorCycle: 'colorCycle', toggleSynesthesia: 'synesthesia',
+        toggleHarmonicSnap: 'harmonicSnap', toggleNegativeSpace: 'negativeSpace', toggleAnalysisMeters: 'showAnalysisMeters',
+        toggleStereoWave: 'showStereoWave', toggleHDRI: 'showHDRI', toggleDOF: 'dofEnabled',
+        toggleCamPathLoop: 'camPathLoop', toggleDynParticles: 'dynamicParticlesEnabled', toggleDynCollisions: 'dynCollisionEnabled',
+        toggleDynAudioSpawn: 'dynAudioReactiveSpawn', toggleStreamOverlay: 'showStreamOverlay', toggleBpmOverlay: 'showBpmOverlay',
+        toggleWebcam: 'showWebcam', toggleWebcamChroma: 'webcamChromaKey', toggleRepeatQueue: 'repeatQueue', toggleCrossfade: 'crossfade'
       };
 
       const effectiveKey = (key in config) ? key : (keyMap[key] || key);
       if (effectiveKey in config) {
         config[effectiveKey] = val;
+
+        // Auto-update standard uniforms if they exist
+        if (screenFXPass && screenFXPass.uniforms) {
+          const unitName = 'u' + effectiveKey.charAt(0).toUpperCase() + effectiveKey.slice(1);
+          if (screenFXPass.uniforms[unitName]) {
+            screenFXPass.uniforms[unitName].value = val;
+          }
+        }
       }
 
-      // Trigger side effects
-      const callbacks = {
-        form: () => buildMainGeometry(),
-        density: () => buildMainGeometry(),
-        particleCount: () => buildMainGeometry(),
-        renderStyle: () => buildMainGeometry(),
-        environment: () => buildMainGeometry(),
-        colorTheme: () => applyColorTheme(),
-        bgPattern: () => setBgPatternFromConfig(),
-        trailMode: () => updateTrailMode(),
-        volume: () => { if (gainNode) gainNode.gain.value = config.volume; },
-        colorBg: () => { scene.fog && scene.fog.color.set(config.colorBg); bgUniforms.uBgColor.value.set(config.colorBg); },
-        colorPrimary: () => { bgUniforms.uAccentA.value.set(config.colorPrimary); },
-        colorSecondary: () => { bgUniforms.uAccentB.value.set(config.colorSecondary); },
-        cameraFov: () => { camera.fov = config.cameraFov; camera.updateProjectionMatrix(); },
-        fogDensity: () => { if (scene.fog) scene.fog.density = config.fogDensity; },
-        ringCount: () => buildRings(),
-        analyzerFftSize: () => {
-          if (audioCtx) {
-            analyser.fftSize = parseInt(val);
-            if (analyserL) analyserL.fftSize = analyser.fftSize;
-            if (analyserR) analyserR.fftSize = analyser.fftSize;
-            freqData = new Uint8Array(analyser.frequencyBinCount);
-            timeData = new Uint8Array(analyser.fftSize);
-            audio.setFFTInfo(analyser.fftSize, audioCtx.sampleRate);
-            if (window.analysisManager) window.analysisManager.onAudioInit();
-          }
-        },
-        cameraMode: () => { camState.autoMode = val; },
-        cameraDistance: () => { camState.targetDistance = val; },
-        cameraSpeed: () => { config.cameraSpeed = val; },
-        cameraShake: () => { config.cameraShake = val; },
-        particleMode: () => { config.particleMode = val; },
-        fieldMode: () => { config.fieldMode = val; },
-        symmetry: () => { config.symmetry = val; },
-        turbulence: () => { config.turbulence = val; },
-        cohesion: () => { config.cohesion = val; },
-        bloomStrength: () => { config.bloomStrength = val; },
-        bloomRadius: () => { config.bloomRadius = val; },
-        glitchAmount: () => { config.glitchAmount = val; },
-        vignette: () => { config.vignette = val; },
-        grain: () => { config.grain = val; },
-        aberration: () => { config.aberration = val; },
-        anamorphic: () => { config.anamorphic = val; },
-        scanlines: () => { config.scanlines = val; },
-        filmLook: () => { config.filmLook = val; },
-        bgPatternStrength: () => { config.bgPatternStrength = val; },
-        spectrogramMode: () => { config.spectrogramMode = val; },
-        spectrogramColor: () => { config.spectrogramColor = val; },
-        sensKick: () => { config.sensKick = val; },
-        sensSnare: () => { config.sensSnare = val; },
-        sensHihat: () => { config.sensHihat = val; },
-        waveZoom: () => { config.waveZoom = val; },
-        gradeLift: () => { if (screenFXPass.uniforms.uLift) screenFXPass.uniforms.uLift.value.set(config.gradeLift); },
-        gradeGamma: () => { if (screenFXPass.uniforms.uGamma) screenFXPass.uniforms.uGamma.value.set(config.gradeGamma); },
-        gradeGain: () => { if (screenFXPass.uniforms.uGain) screenFXPass.uniforms.uGain.value.set(config.gradeGain); },
-        gradeSat: () => { if (screenFXPass.uniforms.uGradeSat) screenFXPass.uniforms.uGradeSat.value = config.gradeSat; },
-        gradeVibrance: () => { if (screenFXPass.uniforms.uGradeVibrance) screenFXPass.uniforms.uGradeVibrance.value = config.gradeVibrance; },
-        godRaysInt: () => { config.godRaysInt = val; },
-        hueRotate: () => { screenFXPass.uniforms.uHueRotate.value = val / 360; },
-        lightKeyInt: () => { config.lightKeyInt = val; },
-        lightFillInt: () => { config.lightFillInt = val; },
-        lightRimInt: () => { config.lightRimInt = val; },
-        matMetal: () => { if (wireframeMesh && wireframeMesh.material.metalness !== undefined) wireframeMesh.material.metalness = val; },
-        matRough: () => { if (wireframeMesh && wireframeMesh.material.roughness !== undefined) wireframeMesh.material.roughness = val; },
-        lutInt: () => { screenFXPass.uniforms.uLutIntensity.value = val; },
-        showInner: () => { if (innerMesh) innerMesh.visible = config.showInner; },
-        showOuter: () => { if (outerMesh) outerMesh.visible = config.showOuter; },
-        showWaveform: () => { if (waveformRing) waveformRing.visible = config.showWaveform; },
-        showBars: () => { freqBars.forEach(b => b.visible = config.showBars); },
-        showConnections: () => { if (connectionLines) connectionLines.visible = config.showConnections; },
-        showParticles: () => { if (particleSystem) particleSystem.visible = config.showParticles; },
-        showShockwaves: () => { shockwaves.forEach(s => s.mesh.visible = config.showShockwaves); },
-        showLightRays: () => buildLightRays(),
-        showAurora: () => buildAurora(),
-        showEnergyField: () => buildEnergyField(),
-        showOrbitals: () => buildOrbitals(),
-        negativeSpace: () => { if (rimMesh) rimMesh.visible = config.negativeSpace; wireframeMesh.material.blending = config.negativeSpace ? THREE.NormalBlending : THREE.AdditiveBlending; },
-        showHDRI: () => { scene.environment = config.showHDRI ? hdriMap : null; buildMainGeometry(); },
-        goboMode: () => { config.goboMode = val; },
-        dofEnabled: () => { config.dofEnabled = val; },
-        dofFocusDistance: () => { config.dofFocusDistance = val; },
-        dofAperture: () => { config.dofAperture = val; },
-        dofBokehScale: () => { config.dofBokehScale = val; },
-        dofAutoFocus: () => { config.dofAutoFocus = val; },
-        cameraTransitionType: () => { config.cameraTransitionType = val; },
-        cameraTransitionDuration: () => { config.cameraTransitionDuration = val; },
-        shakeProfile: () => { config.shakeProfile = val; },
-        shakeDirectionBias: () => { config.shakeDirectionBias = val; },
-        shakeFrequency: () => { config.shakeFrequency = val; },
-        shakeDecay: () => { config.shakeDecay = val; },
-        camPathLoop: () => { config.camPathLoop = val; },
-        dynamicParticlesEnabled: () => { config.dynamicParticlesEnabled = val; },
-        dynParticleEmitter: () => { config.dynParticleEmitter = val; },
-        dynParticleVelocity: () => { config.dynParticleVelocity = val; },
-        dynParticleShape: () => { config.dynParticleShape = val; },
-        dynParticleCount: () => { config.dynParticleCount = val; },
-        dynParticleSpawnRate: () => { config.dynParticleSpawnRate = val; },
-        dynParticleLifespan: () => { config.dynParticleLifespan = val; },
-        dynParticleSize: () => { config.dynParticleSize = val; },
-        dynForceGravity: () => { config.dynForceGravity = val; },
-        dynForceVortex: () => { config.dynForceVortex = val; },
-        dynForceTurbulence: () => { config.dynForceTurbulence = val; },
-        dynAttractorStrength: () => { config.dynAttractorStrength = val; },
-        dynCollisionEnabled: () => { config.dynCollisionEnabled = val; },
-        dynAudioReactiveSpawn: () => { config.dynAudioReactiveSpawn = val; },
-        dynAudioVelocityMult: () => { config.dynAudioVelocityMult = val; },
-        dynParticleTrailLength: () => { config.dynParticleTrailLength = val; },
-        screenshotRes: () => { config.screenshotRes = val; },
-        overlayText: () => { config.overlayText = val; updateStreamOverlay(); },
-        webcamPosition: () => { config.webcamPosition = val; updateWebcamPosition(); },
-        recQuality: () => { config.recQuality = val; },
-        showStreamOverlay: () => { updateStreamOverlay(); },
-        showBpmOverlay: () => { updateStreamOverlay(); },
-        showWebcam: () => { toggleWebcam(config.showWebcam); },
-        webcamChromaKey: () => { updateStreamOverlay(); }
-      };
-
-      if (callbacks[effectiveKey]) callbacks[effectiveKey]();
+      if (uiRegistry[effectiveKey]) uiRegistry[effectiveKey]();
     }
 
     // Final Listeners and Initialization
@@ -6835,7 +6806,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         el.addEventListener(eventType, handleBinding);
       });
 
-      // UI Tab Functionality (Already existing, but ensure listeners are active)
+      // UI Tab Functionality
       document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
           document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -6845,6 +6816,15 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           document.querySelector(`.settings-panel[data-panel="${panelId}"]`)?.classList.add('active');
         });
       });
+
+      // Sync UI to Config on Load
+      const syncIds = ['particleSizeMult', 'particleBrightness', 'shockwaveIntensity', 'shockwaveImpactThreshold'];
+      syncIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = config[id];
+      });
+
+      const statusEl = document.getElementById('status');
 
       // Control Buttons
       const playIcon = document.getElementById('playIcon');
