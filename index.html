@@ -997,84 +997,9 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       padding: 16px;
     }
 
-    .stream-queue-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 6px;
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: 4px;
-      font-size: 10px;
-      color: #fff;
-      cursor: grab;
-    }
 
-    .stream-queue-item.playing {
-      background: rgba(100, 200, 255, 0.15);
-      border-left: 2px solid var(--accent-primary);
-    }
 
-    .stream-queue-item.dragging {
-      opacity: 0.5;
-    }
 
-    .stream-queue-item__title {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .stream-queue-item__remove {
-      background: none;
-      border: none;
-      color: rgba(255, 255, 255, 0.4);
-      cursor: pointer;
-      font-size: 12px;
-    }
-
-    .stream-queue-item__remove:hover {
-      color: #f55;
-    }
-
-    .stream-queue-controls {
-      grid-column: span 2;
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .stream-toast {
-      position: fixed;
-      bottom: 120px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: rgba(20, 20, 30, 0.95);
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 12px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s, transform 0.3s;
-      z-index: 9999;
-      max-width: 90vw;
-      text-align: center;
-    }
-
-    .stream-toast.visible {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .stream-no-results {
-      grid-column: span 2;
-      text-align: center;
-      color: rgba(255, 255, 255, 0.4);
-      font-size: 11px;
-      padding: 20px;
-    }
 
     #preset-modal {
       position: fixed;
@@ -1409,6 +1334,162 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
     }
 
+    /* Stream Tab Styles */
+    .stream-search-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .stream-search-input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 10px 15px;
+      color: #fff;
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      transition: all 0.3s ease;
+    }
+
+    .stream-search-input:focus {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.3);
+      outline: none;
+      box-shadow: 0 0 15px rgba(100, 200, 255, 0.1);
+    }
+
+    .stream-search-spinner {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+
+    .stream-search-spinner.active {
+      display: block;
+    }
+
+    .stream-results {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 25px;
+      padding-right: 5px;
+    }
+
+    /* Scrollbar for stream results */
+    .stream-results::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .stream-results::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .stream-results::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+    }
+
+    .stream-track-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stream-track-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .stream-track-img {
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .stream-track-info {
+      overflow: hidden;
+    }
+
+    .stream-track-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+
+    .stream-track-artist {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .stream-queue {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 80px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .stream-queue-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 6px;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .stream-queue-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .stream-queue-item.playing {
+      background: rgba(100, 200, 255, 0.1);
+      border: 1px solid rgba(100, 200, 255, 0.3);
+      box-shadow: 0 0 10px rgba(100, 200, 255, 0.05);
+    }
+
+    .stream-queue-empty {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 12px;
+      padding: 20px;
+      font-style: italic;
+    }
+
     .modal-preset__input {
       width: 100%;
       padding: 14px;
@@ -1597,6 +1678,34 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       font-size: 10px;
       color: #fff;
     }
+
+    /* Status Toast Notifications */
+    .status-toast {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      padding: 12px 24px;
+      border-radius: var(--radius-pill);
+      color: #fff;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 1px;
+      z-index: 5000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s var(--spring-easing);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .status-toast.active {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
 
     .analysis-overlay {
       position: fixed;
@@ -1919,6 +2028,8 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 <body class="loading">
   <div id="zen-progress"></div>
   <canvas id="spectrum-overlay" class="spectrum-overlay"></canvas>
+  <div id="global-status-toast" class="status-toast"></div>
+
 
   <div id="preset-modal" class="modal-preset">
     <h3>PRESETS</h3>
@@ -4760,7 +4871,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       }
     }
 
-    let wireframeMesh, particleSystem, connectionLines, rimMesh, vertexData = [];
+    let wireframeMesh, connectionLines, rimMesh, vertexData = [];
     let innerMesh, outerMesh, rings = [], envObjects = [], floatingParticles, floatingData = [];
     let waveformRing, freqBars = [], lightRays = [], auroraLayer, energyFieldMesh, orbitalRings = [];
     const shockwaves = [];
@@ -4782,7 +4893,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         connectionLines.geometry.dispose();
         connectionLines.material.dispose();
       }
-      if (particleSystem) { scene.remove(particleSystem); particleSystem.geometry.dispose(); particleSystem.material.dispose(); }
+      // (particleSystem removed - replaced by DynamicParticleSystem)
 
       const geom = createGeometry(config.form, config.density);
 
@@ -5399,9 +5510,30 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       if (window.analysisManager) window.analysisManager.onAudioInit();
     }
 
-    // Color helpers
+    // Color helpers - cached objects to avoid per-frame allocations
     const tmpHSL1 = { h: 0, s: 0, l: 0 }, tmpHSL2 = { h: 0, s: 0, l: 0 };
     const palette = { hOffset: 0, hOffsetTarget: 0, globalHueShift: 0 };
+
+    // Cached THREE.Color objects for getHarmonizedColor (avoids GC pressure in animation loop)
+    const _cachedColors = {
+      c1: new THREE.Color(),
+      c2: new THREE.Color(),
+      result: new THREE.Color(),
+      lastPrimary: '',
+      lastSecondary: ''
+    };
+
+    // Cached DOM references (populated once at startup)
+    const _domCache = {};
+    function initDOMCache() {
+      const ids = [
+        'bpm-display', 'energy-display', 'bar-display', 'note-display',
+        'audio-progress', 'current-time', 'duration', 'zen-progress',
+        'overlay-bpm', 'overlay-energy', 'status', 'ui', 'spectrum-overlay',
+        'global-status-toast', 'rms-val', 'peak-val'
+      ];
+      ids.forEach(id => { _domCache[id] = document.getElementById(id); });
+    }
 
     function applyColorTheme() {
       const theme = colorThemes[config.colorTheme];
@@ -5421,8 +5553,18 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     }
 
     function getHarmonizedColor(energy, bandMix01) {
-      const c1 = new THREE.Color(config.colorPrimary), c2 = new THREE.Color(config.colorSecondary);
-      c1.getHSL(tmpHSL1); c2.getHSL(tmpHSL2);
+      // Update cached colors only when config changes
+      if (_cachedColors.lastPrimary !== config.colorPrimary) {
+        _cachedColors.c1.set(config.colorPrimary);
+        _cachedColors.lastPrimary = config.colorPrimary;
+      }
+      if (_cachedColors.lastSecondary !== config.colorSecondary) {
+        _cachedColors.c2.set(config.colorSecondary);
+        _cachedColors.lastSecondary = config.colorSecondary;
+      }
+
+      _cachedColors.c1.getHSL(tmpHSL1);
+      _cachedColors.c2.getHSL(tmpHSL2);
 
       // More dynamic mix amount with non-linear response
       const rawMix = bandMix01 * config.colorReactivity + energy * config.colorReactivity * 0.4;
@@ -5438,7 +5580,6 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 
       // Synesthesia: map musical notes to colors with smoother transitions
       if (config.synesthesia && Number.isFinite(audio.rootNote)) {
-        // Use chroma intensity for smoother note-color mapping
         const chromaMax = Math.max(...audio.chroma);
         if (chromaMax > 0.1) {
           const noteHue = audio.rootNote / 12;
@@ -5457,7 +5598,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       const lumBoost = audio.onsetKick * 0.15 + audio.spectralFlux * 0.08;
       const l = clamp(baseLum * (0.50 + 0.70 * energy + lumBoost), 0.08, 0.88);
 
-      return new THREE.Color().setHSL(h, s, l);
+      return _cachedColors.result.setHSL(h, s, l);
     }
 
     function noise3D(x, y, z) { return (fract(Math.sin(x * 12.9898 + y * 78.233 + z * 45.164) * 43758.5453) * 2 - 1); }
@@ -5918,6 +6059,9 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         config: JSON.parse(JSON.stringify(config)),
         thumb: thumb.toDataURL('image/webp', 0.5)
       };
+      // Cleanup canvas to prevent memory leak
+      ctx.clearRect(0, 0, thumb.width, thumb.height);
+      thumb.width = thumb.height = 0;
 
       localStorage.setItem('echoVersePresets', JSON.stringify(presets));
       renderPresetList();
@@ -6127,6 +6271,8 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     function animate(timestamp) {
       if (document.body.classList.contains('loading')) {
         document.body.classList.remove('loading');
+        // Initialize DOM cache on first frame when elements are guaranteed to exist
+        initDOMCache();
       }
       requestAnimationFrame(animate);
       if (!timestamp) timestamp = performance.now();
@@ -6165,27 +6311,20 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         if (timestamp >= animate._nextUIUpdate) {
           animate._nextUIUpdate = timestamp + 66; // ~15 FPS
 
-          const bpmDisplay = document.getElementById('bpm-display');
-          const energyDisplay = document.getElementById('energy-display');
-          const barDisplay = document.getElementById('bar-display');
-          const noteDisplay = document.getElementById('note-display');
-          if (bpmDisplay) bpmDisplay.textContent = `${audio.getBPM()} BPM`;
-          if (energyDisplay) energyDisplay.textContent = `Energy: ${(audio.energy * 100).toFixed(0)}% `;
-          if (barDisplay) barDisplay.textContent = `Bar: ${audio.barCount} `;
-          if (noteDisplay) noteDisplay.textContent = `Note: ${audio.noteName} `;
+          // Use cached DOM references instead of repeated getElementById
+          if (_domCache['bpm-display']) _domCache['bpm-display'].textContent = `${audio.getBPM()} BPM`;
+          if (_domCache['energy-display']) _domCache['energy-display'].textContent = `Energy: ${(audio.energy * 100).toFixed(0)}%`;
+          if (_domCache['bar-display']) _domCache['bar-display'].textContent = `Bar: ${audio.barCount}`;
+          if (_domCache['note-display']) _domCache['note-display'].textContent = `Note: ${audio.noteName}`;
 
           // Update progress bar
           const progressPercent = (audioEl.currentTime / audioEl.duration) * 100 || 0;
-          const audioProgress = document.getElementById('audio-progress');
-          const currentTime = document.getElementById('current-time');
-          const duration = document.getElementById('duration');
-          const zenProgress = document.getElementById('zen-progress');
           if (audioEl.duration) {
-            if (audioProgress) audioProgress.style.width = `${progressPercent}% `;
-            if (currentTime) currentTime.textContent = formatTime(audioEl.currentTime);
-            if (duration) duration.textContent = formatTime(audioEl.duration);
+            if (_domCache['audio-progress']) _domCache['audio-progress'].style.width = `${progressPercent}%`;
+            if (_domCache['current-time']) _domCache['current-time'].textContent = formatTime(audioEl.currentTime);
+            if (_domCache['duration']) _domCache['duration'].textContent = formatTime(audioEl.duration);
           }
-          if (zenProgress) zenProgress.style.width = `${progressPercent}% `;
+          if (_domCache['zen-progress']) _domCache['zen-progress'].style.width = `${progressPercent}%`;
         }
       }
 
@@ -6193,10 +6332,8 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       if (timestamp >= animate._nextOverlayUpdate) {
         animate._nextOverlayUpdate = timestamp + 400;
         if (config.showStreamOverlay && config.showBpmOverlay) {
-          const bpmEl = document.getElementById('overlay-bpm');
-          const nrgEl = document.getElementById('overlay-energy');
-          if (bpmEl) bpmEl.textContent = `${Math.round(audio.bpmSmooth || 0)} BPM`;
-          if (nrgEl) nrgEl.textContent = `ENERGY: ${((audio.energy || 0) * 100).toFixed(0)}%`;
+          if (_domCache['overlay-bpm']) _domCache['overlay-bpm'].textContent = `${Math.round(audio.bpmSmooth || 0)} BPM`;
+          if (_domCache['overlay-energy']) _domCache['overlay-energy'].textContent = `ENERGY: ${((audio.energy || 0) * 100).toFixed(0)}%`;
         }
       }
       updateMusicClock(dt);
@@ -6375,34 +6512,37 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         waveformRing.material.opacity = 0.35 + motion.swell * 0.2;
       }
 
-      // Freq bars - smoothed transitions
-      freqBars.forEach((bar, idx) => {
-        if (!bar.visible) return;
+      // Freq bars - smoothed transitions (optimized: for loop instead of forEach)
+      for (let idx = 0, len = freqBars.length; idx < len; idx++) {
+        const bar = freqBars[idx];
+        if (!bar.visible) continue;
         const v = audio.getBand(idx);
         const peak = audio.bandPeaks[idx];
         const targetScale = 0.5 + v * 8 + (peak - v) * 1.5;
         bar.scale.y = lerp(bar.scale.y, targetScale, 0.25);
         bar.material.color.copy(getHarmonizedColor(v, idx / 64));
         bar.material.opacity = 0.35 + v * 0.45;
-      });
+      }
 
-      // Rings - use motion coordinator
-      rings.forEach((ring, idx) => {
+      // Rings - use motion coordinator (optimized: for loop)
+      for (let idx = 0, len = rings.length; idx < len; idx++) {
+        const ring = rings[idx];
         ring.rotation.x = phase * 0.02 * (idx + 1) + Math.PI / 2 * (idx % 2);
         ring.rotation.y = phase * 0.015 * (idx + 1);
         const bandVal = audio.getBand(idx * 8);
         ring.scale.setScalar(1 + bandVal * 0.3 + motion.pulse * 0.1);
         ring.material.color.copy(getHarmonizedColor(bandVal, idx / config.ringCount));
         ring.material.opacity = 0.02 + bandVal * 0.025;
-      });
+      }
 
-      // Light rays - smoother motion
-      lightRays.forEach((ray, i) => {
+      // Light rays - smoother motion (optimized: for loop)
+      for (let i = 0, len = lightRays.length; i < len; i++) {
+        const ray = lightRays[i];
         ray.rotation.z = ray.userData.baseAngle + t * ray.userData.speed * (1 + motion.lowMotion * 0.3);
         const intensity = 0.1 + motion.midMotion * 0.3 + motion.pulse * 0.15;
         ray.material.uniforms.uIntensity.value = intensity;
         ray.material.uniforms.uColor.value.copy(getHarmonizedColor(motion.midMotion, i / 12));
-      });
+      }
 
       // Aurora - use motion coordinator
       if (auroraLayer) {
@@ -6715,7 +6855,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       showWaveform: () => { if (waveformRing) waveformRing.visible = config.showWaveform; },
       showBars: () => { freqBars.forEach(b => b.visible = config.showBars); },
       showConnections: () => { if (connectionLines) connectionLines.visible = config.showConnections; },
-      showParticles: () => { if (particleSystem) particleSystem.visible = config.showParticles; },
+      showParticles: () => { /* Deprecated - see dynamicParticles */ },
       showShockwaves: () => { shockwaves.forEach(s => s.mesh.visible = config.showShockwaves); },
       showLightRays: () => buildLightRays(),
       showAurora: () => buildAurora(),
@@ -6885,6 +7025,23 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       document.getElementById('streamNextBtn')?.addEventListener('click', () => streamingService.playNext());
       document.getElementById('streamClearQueue')?.addEventListener('click', () => streamingService.clearQueue());
       document.getElementById('streamTestBeat')?.addEventListener('click', () => streamingService.playTestBeat());
+
+      // Status Notification Helper
+      window.showStatus = (msg, duration = 3000) => {
+        const toast = document.getElementById('global-status-toast');
+        if (!toast) {
+          console.log('[Status]', msg);
+          return;
+        }
+        toast.textContent = msg.toUpperCase();
+        toast.classList.add('active');
+        clearTimeout(toast._timeout);
+        toast._timeout = setTimeout(() => {
+          toast.classList.remove('active');
+        }, duration);
+      };
+
+
 
       // Recording
       let mediaRecorder, recordedChunks = [];
@@ -7074,11 +7231,25 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 
     function updateResponsiveElements() {
       const w = window.innerWidth;
+      const h = window.innerHeight;
       const ui = document.getElementById('ui');
-      if (!ui) return;
-      if (w < 768) { ui.style.padding = '8px'; ui.style.gap = '8px'; }
-      else if (w < 1200) { ui.style.padding = '15px'; ui.style.gap = '12px'; }
-      else { ui.style.padding = '25px'; ui.style.gap = '20px'; }
+      const status = document.getElementById('status');
+      const spectrum = document.getElementById('spectrum-overlay');
+
+      if (ui) {
+        if (w < 768) { ui.style.padding = '8px'; ui.style.gap = '8px'; }
+        else if (w < 1200) { ui.style.padding = '15px'; ui.style.gap = '12px'; }
+        else { ui.style.padding = '25px'; ui.style.gap = '20px'; }
+      }
+
+      if (status) {
+        status.style.display = (h < 500 && w < 800) ? 'none' : 'flex';
+      }
+
+      if (spectrum) {
+        spectrum.width = w;
+        spectrum.style.bottom = (w < 600) ? '80px' : '0px';
+      }
     }
 
   </script>
