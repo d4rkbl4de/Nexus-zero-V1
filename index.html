@@ -227,6 +227,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       width: 100%;
       height: 100%;
       filter: contrast(1.08) saturate(1.15) brightness(1.05);
+      z-index: 1;
     }
 
     #ui {
@@ -234,7 +235,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       bottom: 30px;
       left: 50%;
       transform: translateX(-50%) translateY(var(--ui-translate, 0));
-      z-index: 100;
+      z-index: 10;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -866,6 +867,215 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       left: 100%;
     }
 
+    /* Stream Panel Styles */
+    .stream-search-container {
+      position: relative;
+      width: 100%;
+      grid-column: span 2;
+    }
+
+    .stream-search-input {
+      width: 100%;
+      padding: 10px 36px 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.4);
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .stream-search-input:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 12px rgba(100, 200, 255, 0.2);
+    }
+
+    .stream-search-spinner {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: var(--accent-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    .stream-search-spinner.active {
+      display: block;
+    }
+
+    .stream-results {
+      grid-column: span 2;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    }
+
+    .stream-result-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .stream-result-card:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(2px);
+    }
+
+    .stream-result-thumb {
+      width: 48px;
+      height: 36px;
+      border-radius: 4px;
+      object-fit: cover;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .stream-result-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .stream-result-title {
+      font-size: 11px;
+      font-weight: 500;
+      color: #fff;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .stream-result-meta {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 2px;
+    }
+
+    .stream-result-add {
+      padding: 4px 8px;
+      background: rgba(100, 200, 255, 0.2);
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .stream-result-add:hover {
+      background: rgba(100, 200, 255, 0.4);
+    }
+
+    .stream-queue {
+      grid-column: span 2;
+      max-height: 120px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stream-queue-empty {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 11px;
+      padding: 16px;
+    }
+
+    .stream-queue-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 4px;
+      font-size: 10px;
+      color: #fff;
+      cursor: grab;
+    }
+
+    .stream-queue-item.playing {
+      background: rgba(100, 200, 255, 0.15);
+      border-left: 2px solid var(--accent-primary);
+    }
+
+    .stream-queue-item.dragging {
+      opacity: 0.5;
+    }
+
+    .stream-queue-item__title {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stream-queue-item__remove {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .stream-queue-item__remove:hover {
+      color: #f55;
+    }
+
+    .stream-queue-controls {
+      grid-column: span 2;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .stream-toast {
+      position: fixed;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(20, 20, 30, 0.95);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 9999;
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    .stream-toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .stream-no-results {
+      grid-column: span 2;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 11px;
+      padding: 20px;
+    }
+
     #preset-modal {
       position: fixed;
       top: 50%;
@@ -875,7 +1085,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: clamp(18px, 3vw, 28px);
       padding: clamp(25px, 4vw, 40px);
-      z-index: 200;
+      z-index: 100;
       display: none;
       backdrop-filter: blur(16px);
       min-width: clamp(300px, 50vw, 400px);
@@ -1007,6 +1217,30 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 
     /* Responsive Overrides */
     @media (max-width: 768px) {
+      body {
+        display: grid;
+        grid-template-rows: 1fr auto;
+      }
+
+      #ui {
+        position: relative;
+        bottom: 0;
+        left: 0;
+        transform: none;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        border-radius: 20px 20px 0 0;
+        pointer-events: auto !important;
+      }
+
+      #ui.autohide {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        transform: none !important;
+      }
+
       .setting {
         min-width: clamp(70px, 15vw, 100px);
         padding: clamp(8px, 1.2vw, 12px);
@@ -1587,36 +1821,6 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       background: rgba(0, 0, 0, 0.2);
     }
 
-    .histogram-container {
-      width: 100%;
-      height: 120px;
-      margin-top: 10px;
-      border-radius: 8px;
-      background: rgba(0, 0, 0, 0.3);
-      display: block;
-    }
-
-    .curve-editor {
-      width: 100%;
-      height: 100px;
-      margin-top: 5px;
-      border-radius: 4px;
-      background: rgba(0, 0, 0, 0.2);
-      cursor: crosshair;
-      display: block;
-    }
-
-    .curve-controls {
-      display: flex;
-      gap: 5px;
-      margin-top: 5px;
-      align-items: center;
-    }
-
-    .curve-controls input[type="range"] {
-      flex: 1;
-    }
-
     .gr-bar {
       position: absolute;
       top: 0;
@@ -1777,6 +1981,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       <button class="tab" data-tab="grade">Grade</button>
       <button class="tab" data-tab="analysis">Analysis</button>
       <button class="tab" data-tab="share">Share</button>
+      <button class="tab" data-tab="stream">Stream</button>
       <button class="tab" data-tab="extra">Extra</button>
     </div>
 
@@ -1953,9 +2158,9 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         </div>
         <div class="setting"><span class="setting-label">Capture & Share</span>
           <div style="display: flex; gap: 8px;">
-            <button class="btn btn--small" id="takeSnapshot">📷</button>
-            <button class="btn btn--small" id="exportPreset">📤</button>
-            <button class="btn btn--small" id="importPreset">📥</button>
+            <button class="btn btn--small" id="takeSnapshotMini">📷</button>
+            <button class="btn btn--small" id="exportPresetMini">📤</button>
+            <button class="btn btn--small" id="importPresetMini">📥</button>
           </div>
         </div>
 
@@ -2114,8 +2319,12 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
             data-bind="dynForceVortex" min="0" max="5" step="0.1" value="0" /></div>
         <div class="setting"><span class="setting-label">Turbulence</span><input type="range" id="dynForceTurbulence"
             data-bind="dynForceTurbulence" min="0" max="2" step="0.05" value="0.5" /></div>
-        <div class="setting"><span class="setting-label">Attractor</span><input type="range" id="dynAttractorStrength"
-            data-bind="dynAttractorStrength" min="0" max="5" step="0.1" value="1" /></div>
+        <div class="setting"><span class="setting-label">Attraction</span><input type="range" id="dynAttractionStrength"
+            data-bind="dynAttractionStrength" min="0" max="5" step="0.1" value="1" /></div>
+        <div class="setting"><span class="setting-label">Size Reactivity</span><input type="range"
+            id="dynSizeReactivity" data-bind="dynSizeReactivity" min="0" max="5" step="0.1" value="1" /></div>
+        <div class="setting"><span class="setting-label">Vel Stretch</span><input type="range"
+            id="dynVelocityStretching" data-bind="dynVelocityStretching" min="0" max="5" step="0.1" value="1" /></div>
         <div class="setting"><span class="setting-label">Collisions</span>
           <div class="toggle" id="toggleDynCollisions" data-bind="dynCollisionEnabled"></div>
         </div>
@@ -2350,124 +2559,21 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 
       <!-- COLOR GRADE -->
       <div class="settings-panel" data-panel="grade">
-        <!-- Histogram Visualization -->
-        <div class="group-title">Histogram (RGB Parade)</div>
-        <canvas id="histogram-canvas" class="histogram-container"></canvas>
-
-        <!-- Film Response Curves -->
-        <div class="group-title">Film Response</div>
+        <div class="group-title">LGG Suite</div>
         <div class="setting">
-          <span class="setting-label">Film Curve</span>
-          <select id="filmCurve" data-bind="filmCurve">
-            <option value="0">None</option>
-            <option value="1">Kodak Vision3 500T</option>
-            <option value="2">Fuji Eterna 8543</option>
-          </select>
+          <span class="setting-label">Lift (Shadows)</span>
+          <input type="color" id="gradeLift" data-bind="gradeLift" value="#000000" />
+        </div>
+        <div class="setting">
+          <span class="setting-label">Gamma (Mid)</span>
+          <input type="color" id="gradeGamma" data-bind="gradeGamma" value="#808080" />
+        </div>
+        <div class="setting">
+          <span class="setting-label">Gain (High)</span>
+          <input type="color" id="gradeGain" data-bind="gradeGain" value="#ffffff" />
         </div>
 
-        <!-- RGB Curves -->
-        <div class="group-title">RGB Curves</div>
-        <div class="setting">
-          <span class="setting-label">Red Channel</span>
-          <canvas id="curveR-canvas" class="curve-editor" width="200" height="100"></canvas>
-          <div class="curve-controls">
-            <input type="range" id="curveRShadows" data-bind="curveRShadows" min="0" max="1" step="0.01" value="0.0" />
-            <input type="range" id="curveRMids" data-bind="curveRMids" min="0" max="1" step="0.01" value="0.33" />
-            <input type="range" id="curveRHighlights" data-bind="curveRHighlights" min="0" max="1" step="0.01" value="0.66" />
-            <input type="range" id="curveRWhites" data-bind="curveRWhites" min="0" max="1" step="0.01" value="1.0" />
-            <button class="btn" onclick="resetCurve('R')" style="width:auto;padding:3px 8px;font-size:10px;">Reset</button>
-          </div>
-        </div>
-        <div class="setting">
-          <span class="setting-label">Green Channel</span>
-          <canvas id="curveG-canvas" class="curve-editor" width="200" height="100"></canvas>
-          <div class="curve-controls">
-            <input type="range" id="curveGShadows" data-bind="curveGShadows" min="0" max="1" step="0.01" value="0.0" />
-            <input type="range" id="curveGMids" data-bind="curveGMids" min="0" max="1" step="0.01" value="0.33" />
-            <input type="range" id="curveGHighlights" data-bind="curveGHighlights" min="0" max="1" step="0.01" value="0.66" />
-            <input type="range" id="curveGWhites" data-bind="curveGWhites" min="0" max="1" step="0.01" value="1.0" />
-            <button class="btn" onclick="resetCurve('G')" style="width:auto;padding:3px 8px;font-size:10px;">Reset</button>
-          </div>
-        </div>
-        <div class="setting">
-          <span class="setting-label">Blue Channel</span>
-          <canvas id="curveB-canvas" class="curve-editor" width="200" height="100"></canvas>
-          <div class="curve-controls">
-            <input type="range" id="curveBShadows" data-bind="curveBShadows" min="0" max="1" step="0.01" value="0.0" />
-            <input type="range" id="curveBMids" data-bind="curveBMids" min="0" max="1" step="0.01" value="0.33" />
-            <input type="range" id="curveBHighlights" data-bind="curveBHighlights" min="0" max="1" step="0.01" value="0.66" />
-            <input type="range" id="curveBWhites" data-bind="curveBWhites" min="0" max="1" step="0.01" value="1.0" />
-            <button class="btn" onclick="resetCurve('B')" style="width:auto;padding:3px 8px;font-size:10px;">Reset</button>
-          </div>
-        </div>
-
-        <!-- Channel Mixer -->
         <div class="group-title">Channel Mixer</div>
-        <div class="setting">
-          <span class="setting-label">R from R</span>
-          <input type="range" id="channelMixerRR" data-bind="channelMixerRR" min="-2" max="2" step="0.01" value="1.0" />
-        </div>
-        <div class="setting">
-          <span class="setting-label">R from G</span>
-          <input type="range" id="channelMixerRG" data-bind="channelMixerRG" min="-2" max="2" step="0.01" value="0.0" />
-        </div>
-        <div class="setting">
-          <span class="setting-label">R from B</span>
-          <input type="range" id="channelMixerRB" data-bind="channelMixerRB" min="-2" max="2" step="0.01" value="0.0" />
-        </div>
-        <div class="setting">
-          <span class="setting-label">G from R</span>
-          <input type="range" id="channelMixerGR" data-bind="channelMixerGR" min="-2" max="2" step="0.01" value="0.0" />
-        </div>
-        <div class="setting">
-          <span class="setting-label">G from G</span>
-          <input type="range" id="channelMixerGG" data-bind="channelMixerGG" min="-2" max="2" step="0.01" value="1.0" />
-        </div>
-        <div class="setting">
-          <span class="setting-label">G from B</span>
-          <input type="range" id="channelMixerGB" data-bind="channelMixerGB" min="-2" max="2" step="0.01" value="0.0" />
-        </div>
-        <div class="setting">
-          <span class="setting-label">B from R</span>
-          <input type="range" id="channelMixerBR" data-bind="channelMixerBR" min="-2" max="2" step="0.01" value="0.0" />
-        </div>
-        <div class="setting">
-          <span class="setting-label">B from G</span>
-          <input type="range" id="channelMixerBG" data-bind="channelMixerBG" min="-2" max="2" step="0.01" value="0.0" />
-        </div>
-        <div class="setting">
-          <span class="setting-label">B from B</span>
-          <input type="range" id="channelMixerBB" data-bind="channelMixerBB" min="-2" max="2" step="0.01" value="1.0" />
-        </div>
-
-        <!-- Color Temperature -->
-        <div class="group-title">Color Temperature</div>
-        <div class="setting">
-          <span class="setting-label">Temperature (K)</span>
-          <input type="range" id="colorTemp" data-bind="colorTemp" min="2000" max="10000" step="100" value="6500" />
-        </div>
-        <div class="setting">
-          <span class="setting-label">Tint (Magenta/Green)</span>
-          <input type="range" id="tint" data-bind="tint" min="-1" max="1" step="0.01" value="0.0" />
-        </div>
-
-        <!-- Split Toning -->
-        <div class="group-title">Split Toning</div>
-        <div class="setting">
-          <span class="setting-label">Shadow Tint</span>
-          <input type="color" id="splitToneShadows" data-bind="splitToneShadows" value="#000000" />
-        </div>
-        <div class="setting">
-          <span class="setting-label">Highlight Tint</span>
-          <input type="color" id="splitToneHighlights" data-bind="splitToneHighlights" value="#ffffff" />
-        </div>
-        <div class="setting">
-          <span class="setting-label">Balance</span>
-          <input type="range" id="splitToneBalance" data-bind="splitToneBalance" min="-1" max="1" step="0.01" value="0.0" />
-        </div>
-
-        <!-- Saturation & Vibrance -->
-        <div class="group-title">Saturation & Vibrance</div>
         <div class="setting">
           <span class="setting-label">Sat Boost</span>
           <input type="range" id="gradeSat" data-bind="gradeSat" min="0" max="2" step="0.01" value="1.0" />
@@ -2477,8 +2583,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           <input type="range" id="gradeVibrance" data-bind="gradeVibrance" min="0" max="2" step="0.01" value="1.2" />
         </div>
 
-        <!-- LUT / Hue Rotate -->
-        <div class="group-title">LUT / Hue</div>
+        <div class="group-title">LUT / Film</div>
         <div class="setting">
           <span class="setting-label">LUT Intensity</span>
           <input type="range" id="lutInt" data-bind="lutInt" min="0" max="1" step="0.01" value="0.5" />
@@ -2486,8 +2591,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         <div class="setting">
           <span class="setting-label">Load LUT (.cube)</span>
           <input type="file" id="lutFile" accept=".cube" style="display:none;" />
-          <button class="btn" style="width:auto;height:auto;padding:5px 10px;font-size:10px;"
-            onclick="document.getElementById('lutFile').click()">Choose File</button>
+          <button class="btn" id="lutChooseBtn" style="width:auto;height:auto;padding:5px 10px;font-size:10px;">Choose File</button>
         </div>
         <div class="setting">
           <span class="setting-label">Color Wheel</span>
@@ -2615,6 +2719,40 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           </select>
         </div>
       </div>
+
+      <!-- STREAM -->
+      <div class="settings-panel" data-panel="stream">
+        <div class="stream-header"
+          style="grid-column: span 2; display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3 style="margin:0; font-size:14px; color:#fff; letter-spacing:1px;">🔥 Trending This Week</h3>
+          <button id="loadTrendingBtn" class="btn btn--small" style="width:auto; padding:4px 12px;">Refresh</button>
+        </div>
+        <div class="stream-search-container">
+          <input type="text" id="streamSearchInput" class="stream-search-input" placeholder="Search Audius tracks..." />
+          <div class="stream-search-spinner" id="streamSpinner"></div>
+        </div>
+        <div class="stream-results" id="streamResults"></div>
+
+        <div class="group-title" style="margin-top:12px;">Queue</div>
+        <div class="stream-queue" id="streamQueue">
+          <div class="stream-queue-empty">No tracks in queue</div>
+        </div>
+        <div class="stream-queue-controls">
+          <button class="btn btn--small" id="streamPrevBtn" title="Previous">⏮</button>
+          <button class="btn btn--small" id="streamNextBtn" title="Next">⏭</button>
+          <button class="btn btn--small" id="streamClearQueue" title="Clear Queue">🗑</button>
+          <button class="btn btn--small" id="streamTestBeat" title="Test Beat">🔊</button>
+        </div>
+        <div class="setting" style="margin-top:8px;">
+          <span class="setting-label">Repeat Queue</span>
+          <div class="toggle" id="toggleRepeatQueue"></div>
+        </div>
+        <div class="setting">
+          <span class="setting-label">Crossfade</span>
+          <div class="toggle" id="toggleCrossfade"></div>
+        </div>
+        <div id="streamToast" class="stream-toast"></div>
+      </div>
     </div>
 
     <div class="controls">
@@ -2725,13 +2863,13 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       cameraMode: 'orbit', cameraDistance: 35, cameraSpeed: 0.6, cameraShake: 0.45, cameraFov: 60,
       cameraBeatZoom: true, cameraAutoAngles: false,
       particleMode: 'vertex', fieldMode: 'harmonic', symmetry: 6, turbulence: 0.25, cohesion: 0.55, particleCount: 1500,
-      bloomStrength: 0.8, bloomRadius: 0.7, trailMode: 'medium', glitchAmount: 0,
+      bloomStrength: 0.4, bloomRadius: 0.4, trailMode: 'medium', glitchAmount: 0,
       vignette: 0.35, grain: 0.12, aberration: 0.08, anamorphic: 0, scanlines: 0, filmLook: 'none',
       environment: 'void', fogDensity: 0.008, ringCount: 3,
       showInner: true, showOuter: true, showWaveform: true, showBars: false,
       showConnections: true, showParticles: true, showDeepParticles: true, showShockwaves: true,
       showWireframeCore: true, showRimGlow: true, showRings: true,
-      particleSizeMult: 1.0, particleBrightness: 1.0,
+      particleSizeMult: 0.7, particleBrightness: 0.8,
       shockwaveIntensity: 0.7, shockwaveImpactThreshold: 0.55, shockwaveCooldown: 0.22,
       showLightRays: false, showAurora: false, showEnergyField: false, showOrbitals: false,
       showSpectrum: true, autoPilot: false, beatFlash: true,
@@ -2772,22 +2910,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       gradeSat: 1.0,
       gradeVibrance: 1.2,
       lutInt: 0.5,
-      hueRotateGrade: 0,
-      // RGB Curves (0.0 to 1.0 for each control point)
-      curveRShadows: 0.0, curveRMids: 0.33, curveRHighlights: 0.66, curveRWhites: 1.0,
-      curveGShadows: 0.0, curveGMids: 0.33, curveGHighlights: 0.66, curveGWhites: 1.0,
-      curveBShadows: 0.0, curveBMids: 0.33, curveBHighlights: 0.66, curveBWhites: 1.0,
-      // Split Toning
-      splitToneShadows: '#000000', splitToneHighlights: '#ffffff', splitToneBalance: 0.0,
-      // Color Temperature
-      colorTemp: 6500.0, // Kelvin
-      tint: 0.0, // -1 to 1
-      // Film Response
-      filmCurve: 0, // 0=none, 1=Kodak, 2=Fuji
-      // Channel Mixer (3x3 matrix)
-      channelMixerRR: 1.0, channelMixerRG: 0.0, channelMixerRB: 0.0,
-      channelMixerGR: 0.0, channelMixerGG: 1.0, channelMixerGB: 0.0,
-      channelMixerBR: 0.0, channelMixerBG: 0.0, channelMixerBB: 1.0,
+      hueRotate: 0,
       showHDRI: true,
       // Advanced Camera System
       dofEnabled: false,
@@ -2817,10 +2940,11 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       dynForceGravity: 0.0,
       dynForceVortex: 0.0,
       dynForceTurbulence: 0.5,
-      dynAttractorStrength: 1.0,
-      dynCollisionEnabled: false,
       dynAudioReactiveSpawn: true,
       dynAudioVelocityMult: 1.0,
+      dynAttractionStrength: 1.0,
+      dynSizeReactivity: 1.0,
+      dynVelocityStretching: 1.0,
       // Social/Sharing features
       screenshotRes: '2x', // '1x', '2x', '4x'
       showStreamOverlay: false,
@@ -2829,7 +2953,12 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       webcamChromaKey: false,
       webcamPosition: 'bottom-right',
       recQuality: 'high', // 'low', 'medium', 'high'
-      showBpmOverlay: true
+      showBpmOverlay: true,
+      // Queue & Streaming
+      repeatQueue: false,
+      crossfade: false,
+      crossfadeDuration: 5,
+      dataSaverMode: false
     };
 
     const colorThemes = {
@@ -2857,6 +2986,16 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     renderer.toneMappingExposure = 1.15;
     document.body.appendChild(renderer.domElement);
     renderer.domElement.id = 'canvas';
+
+    renderer.domElement.addEventListener('webglcontextlost', (e) => {
+      e.preventDefault();
+      playing = false;
+      const btn = document.createElement('button');
+      btn.textContent = 'Hardware Acceleration Lost. Click to Reload.';
+      btn.style = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:9999; padding:20px; background:#f00; color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:bold;';
+      btn.onclick = () => window.location.reload();
+      document.body.appendChild(btn);
+    }, false);
 
     // Background Scene
     const bgScene = new THREE.Scene();
@@ -2999,6 +3138,9 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         this.transientSharpness = 0;
         // Harmonic content detection
         this.harmonicRatio = 0;
+
+        // Optimization buffers
+        this._scratchBuffer = new Float32Array(1024);
       }
 
       _computeLogBandEdges(numBands, minHz, maxHz) {
@@ -3017,9 +3159,33 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         this.sampleRate = sampleRate;
         this.bandEdges = this._computeLogBandEdges(this.bands, 20, Math.min(20000, sampleRate / 2));
       }
-      _median(arr) { if (!arr.length) return 0; const a = arr.slice().sort((x, y) => x - y); const mid = (a.length - 1) * 0.5; return lerp(a[Math.floor(mid)], a[Math.ceil(mid)], mid - Math.floor(mid)); }
-      _mad(arr, med) { return this._median(arr.map(v => Math.abs(v - med))) + 1e-6; }
-      _adaptiveThreshold(history, k = 2.6) { const med = this._median(history); return med + k * this._mad(history, med); }
+      _median(arr) {
+        if (!arr.length) return 0;
+        const n = arr.length;
+        // Ensure buffer is large enough
+        if (this._scratchBuffer.length < n) {
+          this._scratchBuffer = new Float32Array(Math.max(n, 1024));
+        }
+        for (let i = 0; i < n; i++) this._scratchBuffer[i] = arr[i];
+        const sub = this._scratchBuffer.subarray(0, n);
+        sub.sort();
+        const mid = (n - 1) * 0.5;
+        return lerp(sub[Math.floor(mid)], sub[Math.ceil(mid)], mid - Math.floor(mid));
+      }
+      _mad(arr, med) {
+        const n = arr.length;
+        // Ensure buffer is large enough
+        if (this._scratchBuffer.length < n) {
+          this._scratchBuffer = new Float32Array(Math.max(n, 1024));
+        }
+        for (let i = 0; i < n; i++) this._scratchBuffer[i] = Math.abs(arr[i] - med);
+        const sub = this._scratchBuffer.subarray(0, n);
+        return this._median(sub) + 1e-6;
+      }
+      _adaptiveThreshold(history, k = 2.6) {
+        const med = this._median(history);
+        return med + k * this._mad(history, med);
+      }
       _ensureFftSmooth(n) { if (!this._fftSmooth || this._fftSmooth.length !== n) this._fftSmooth = new Float32Array(n); }
       _noteName(pc) { return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'][(pc | 0) % 12]; }
 
@@ -3261,14 +3427,15 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     class AnalysisManager {
       constructor() {
         this.spectrogramCanvas = document.getElementById('spectrogram-canvas');
-        this.specCtx = this.spectrogramCanvas.getContext('2d');
+        this.specCtx = this.spectrogramCanvas?.getContext('2d');
         this.dynamicsMeters = document.getElementById('gain-reduction-meters');
         this.beatConfidence = document.getElementById('beat-confidence');
 
         this.waveCanvas = document.createElement('canvas');
         this.waveCtx = this.waveCanvas.getContext('2d');
         this.waveCanvas.className = 'analyzer-wave-canvas';
-        document.getElementById('dynamics-visualization').appendChild(this.waveCanvas);
+        const dynViz = document.getElementById('dynamics-visualization');
+        if (dynViz) dynViz.appendChild(this.waveCanvas);
 
         this.specHistory = [];
         this.maxHistory = 120;
@@ -3276,6 +3443,13 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         this.gr8 = new Float32Array(8);
         this.peakHold = new Float32Array(8);
         this.peakDecay = 0.95;
+
+        // Pooled buffers for spectrogram to avoid frame-by-frame allocation
+        this.specPool = [];
+        for (let i = 0; i < this.maxHistory + 1; i++) {
+          this.specPool.push(new Uint8Array(64)); // audio.bands is 64
+        }
+        this.poolIdx = 0;
 
         this.initMeters();
       }
@@ -3287,6 +3461,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       }
 
       initMeters() {
+        if (!this.dynamicsMeters) return;
         this.dynamicsMeters.innerHTML = '';
         for (let i = 0; i < 8; i++) {
           const meter = document.createElement('div');
@@ -3297,6 +3472,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           this.dynamicsMeters.appendChild(meter);
         }
 
+        if (!this.beatConfidence) return;
         this.beatConfidence.innerHTML = '';
         ['Kick', 'Snare', 'Hi-Hat', 'Perc'].forEach(name => {
           const row = document.createElement('div');
@@ -3324,15 +3500,16 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           if (analyserR) analyserR.getByteTimeDomainData(this.timeR);
         }
 
-        // 1. Spectrogram update
-        const currentSpec = new Uint8Array(audio.bands);
+        // 1. Spectrogram update (Using pooled buffers)
+        const currentSpec = this.specPool[this.poolIdx];
+        this.poolIdx = (this.poolIdx + 1) % this.specPool.length;
         for (let i = 0; i < audio.bands; i++) currentSpec[i] = audio.bandValues[i] * 255;
         this.specHistory.push(currentSpec);
         if (this.specHistory.length > this.maxHistory) this.specHistory.shift();
 
         if (config.spectrogramMode && config.spectrogramMode !== 'off') {
           this.drawSpectrogram();
-        } else {
+        } else if (this.spectrogramCanvas) {
           this.spectrogramCanvas.style.display = 'none';
         }
 
@@ -3350,16 +3527,18 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           this.gr8[i] = lerp(this.gr8[i], reduction, 0.15);
         }
 
+        const dynViz = document.getElementById('dynamics-visualization');
         if (config.showAnalysisMeters) {
-          document.getElementById('dynamics-visualization').style.display = 'flex';
+          if (dynViz) dynViz.style.display = 'flex';
           this.updateMeters();
           this.drawWaveform();
-        } else {
-          document.getElementById('dynamics-visualization').style.display = 'none';
+        } else if (dynViz) {
+          dynViz.style.display = 'none';
         }
       }
 
       updateMeters() {
+        if (!this.dynamicsMeters) return;
         const bars = this.dynamicsMeters.querySelectorAll('.gr-bar');
         bars.forEach((bar, i) => {
           bar.style.height = `${clamp(this.gr8[i] * 100, 0, 100)}%`;
@@ -3367,8 +3546,10 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         });
 
         // Update RMS/Peak text
-        document.getElementById('rms-val').textContent = audio.rmsSmooth.toFixed(3);
-        document.getElementById('peak-val').textContent = audio.rmsPeak.toFixed(3);
+        const rmsEl = document.getElementById('rms-val');
+        const peakEl = document.getElementById('peak-val');
+        if (rmsEl) rmsEl.textContent = audio.rmsSmooth.toFixed(3);
+        if (peakEl) peakEl.textContent = audio.rmsPeak.toFixed(3);
 
         const confs = {
           kick: audio.onsetKick,
@@ -3406,7 +3587,8 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         ctx.shadowBlur = 5; ctx.shadowColor = '#fff';
         ctx.beginPath();
         for (let i = 0; i < visibleSamples; i++) {
-          const val = (this.timeL[start + i] - 128) / 128;
+          const idx = Math.min(start + i, bufferLength - 1);
+          const val = (this.timeL[idx] - 128) / 128;
           const y = (config.showStereoWave ? h * 0.3 : h * 0.5) + val * (h * 0.4);
           if (i === 0) ctx.moveTo(i * sliceWidth, y);
           else ctx.lineTo(i * sliceWidth, y);
@@ -3419,7 +3601,8 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           ctx.shadowColor = '#888';
           ctx.beginPath();
           for (let i = 0; i < visibleSamples; i++) {
-            const val = (this.timeR[start + i] - 128) / 128;
+            const idx = Math.min(start + i, bufferLength - 1);
+            const val = (this.timeR[idx] - 128) / 128;
             const y = h * 0.7 + val * (h * 0.4);
             if (i === 0) ctx.moveTo(i * sliceWidth, y);
             else ctx.lineTo(i * sliceWidth, y);
@@ -3604,220 +3787,821 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     const motion = new MotionCoordinator();
 
     // ========================================================================
+    // STREAMING SERVICE - Audius API Integration
+    // ========================================================================
+    class StreamingService {
+      constructor() {
+        this.proxy = 'https://audius-cors-proxy.audiustream-proxy.workers.dev';
+        this.appName = 'EchoVerse';
+        this.host = 'https://discoveryprovider.audius.co'; // Default fallback
+        this.queue = [];
+        this.queueIndex = -1;
+        this.currentTrack = null;
+        this.initHost();
+        console.log('[Audius] Service initialized.');
+      }
+
+      async initHost() {
+        try {
+          // Attempt to get a healthy host from the list
+          const response = await this.fetchViaProxy('https://api.audius.co');
+          if (response && response.data && response.data.length > 0) {
+            this.host = response.data[0];
+            console.log('[Audius] Connected to host:', this.host);
+          }
+        } catch (e) {
+          console.warn('[Audius] Host selection failed, using default.', e);
+        }
+      }
+
+      async fetchViaProxy(url) {
+        // Route everything through the Cloudflare worker to handle CORS
+        const targetUrl = `${this.proxy}/?url=${encodeURIComponent(url)}`;
+        try {
+          const res = await fetch(targetUrl);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return await res.json();
+        } catch (e) {
+          console.error('[Audius] Fetch error:', e);
+          return null;
+        }
+      }
+
+      showToast(msg, duration = 4000) {
+        const toast = document.getElementById('streamToast');
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.add('visible');
+        setTimeout(() => toast.classList.remove('visible'), duration);
+      }
+
+      async getTrending(time = 'week') {
+        const spinner = document.getElementById('streamSpinner');
+        if (spinner) spinner.classList.add('active');
+
+        try {
+          const url = `${this.host}/v1/tracks/trending?time=${time}&app_name=${this.appName}`;
+          const data = await this.fetchViaProxy(url);
+          if (spinner) spinner.classList.remove('active');
+
+          if (data && data.data) {
+            return this.normalizeTracks(data.data);
+          }
+          return [];
+        } catch (e) {
+          if (spinner) spinner.classList.remove('active');
+          this.showToast('Failed to load trending tracks.');
+          return [];
+        }
+      }
+
+      async search(query) {
+        if (!query || query.length < 2) return [];
+        const spinner = document.getElementById('streamSpinner');
+        if (spinner) spinner.classList.add('active');
+
+        try {
+          const url = `${this.host}/v1/tracks/search?query=${encodeURIComponent(query)}&app_name=${this.appName}`;
+          const data = await this.fetchViaProxy(url);
+          if (spinner) spinner.classList.remove('active');
+
+          if (data && data.data) {
+            return this.normalizeTracks(data.data);
+          }
+          return [];
+        } catch (e) {
+          if (spinner) spinner.classList.remove('active');
+          this.showToast('Search failed.');
+          return [];
+        }
+      }
+
+      normalizeTracks(audiusTracks) {
+        return audiusTracks.map(t => ({
+          id: t.id,
+          title: t.title,
+          author: t.user.name,
+          duration: t.duration,
+          artwork: t.artwork ? (t.artwork['150x150'] || t.artwork['480x480']) : null,
+          streamUrl: null // Will be resolved on play
+        }));
+      }
+
+      async playTrack(track) {
+        // Resolve stream URL
+        const streamUrl = `${this.host}/v1/tracks/${track.id}/stream?app_name=${this.appName}`;
+        // Verify stream through proxy if needed, but audio element should handle it 
+        // if we use the proxy for the stream itself? 
+        // Actually, for audio src, we usually need the direct URL or the proxy if CORS is an issue.
+        // Audius API usually redirects to a silica/content node.
+        // Let's try direct first. If it fails due to CORS, we might need to proxy the stream bytes,
+        // but that's heavy. Usually Audius handles CORS well on stream endpoints if Origin is allowed.
+        // But we are on file:// or localhost.
+
+        // Let's use the proxy for the stream URL to be safe, 
+        // BUT the proxy helper appends ?url=... which Audio element might not like if it expects a direct file extension.
+        // Actually the proxy is transparent.
+
+        const finalUrl = `${this.proxy}/?url=${encodeURIComponent(streamUrl)}`;
+
+        const audioEl = document.getElementById('audio');
+
+        // CRITICAL: Set crossOrigin BEFORE src
+        audioEl.crossOrigin = 'anonymous';
+        audioEl.src = finalUrl;
+
+        // Resume AudioContext if needed
+        if (typeof audioCtx !== 'undefined' && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        try {
+          await audioEl.play();
+          playing = true;
+          this.currentTrack = track;
+          console.log('[Audius] Playing:', track.title);
+          this.updateMediaSession(track);
+          this.renderQueue();
+          return true;
+        } catch (e) {
+          console.error('[Audius] Playback failed:', e);
+          this.showToast('Playback failed. CORS or network error.');
+          return false;
+        }
+      }
+
+      addToQueue(track) {
+        this.queue.push(track);
+        this.renderQueue();
+        this.showToast(`Added: ${track.title.substring(0, 40)}...`);
+      }
+
+      removeFromQueue(index) {
+        this.queue.splice(index, 1);
+        if (index < this.queueIndex) this.queueIndex--;
+        else if (index === this.queueIndex) {
+          this.queueIndex = Math.min(this.queueIndex, this.queue.length - 1);
+        }
+        this.renderQueue();
+      }
+
+      async playFromQueue(index) {
+        if (index < 0 || index >= this.queue.length) return;
+        this.queueIndex = index;
+        await this.playTrack(this.queue[index]);
+      }
+
+      async playNext() {
+        if (this.queue.length === 0) return;
+        let nextIndex = this.queueIndex + 1;
+        if (nextIndex >= this.queue.length) {
+          if (config.repeatQueue) nextIndex = 0;
+          else return;
+        }
+        await this.playFromQueue(nextIndex);
+      }
+
+      async playPrev() {
+        if (this.queue.length === 0) return;
+        let prevIndex = this.queueIndex - 1;
+        if (prevIndex < 0) prevIndex = config.repeatQueue ? this.queue.length - 1 : 0;
+        await this.playFromQueue(prevIndex);
+      }
+
+      clearQueue() {
+        this.queue = [];
+        this.queueIndex = -1;
+        this.renderQueue();
+      }
+
+      renderQueue() {
+        const container = document.getElementById('streamQueue');
+        if (!container) return;
+
+        if (this.queue.length === 0) {
+          container.textContent = '';
+          const empty = document.createElement('div');
+          empty.className = 'stream-queue-empty';
+          empty.textContent = 'No tracks in queue';
+          container.appendChild(empty);
+          return;
+        }
+
+        container.textContent = '';
+        this.queue.forEach((track, i) => {
+          const item = document.createElement('div');
+          item.className = `stream-queue-item ${i === this.queueIndex ? 'playing' : ''}`;
+          item.dataset.index = String(i);
+          item.draggable = true;
+
+          const title = document.createElement('span');
+          title.className = 'stream-queue-item__title';
+          title.textContent = `${i + 1}. ${track.title}`;
+
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'stream-queue-item__remove';
+          removeBtn.dataset.remove = String(i);
+          removeBtn.type = 'button';
+          removeBtn.textContent = '×';
+          removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.removeFromQueue(i);
+          });
+
+          item.appendChild(title);
+          item.appendChild(removeBtn);
+          item.addEventListener('click', () => this.playFromQueue(i));
+          container.appendChild(item);
+        });
+
+        // Re-use existing drag-drop logic if needed or reimplement
+        // Simplified for this update to avoid code bloat, but basic drag events exist in HTML
+      }
+
+      updateMediaSession(track) {
+        if (!('mediaSession' in navigator)) return;
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: track.title,
+          artist: track.author || 'EchoVerse Stream',
+          artwork: track.artwork ? [{ src: track.artwork, sizes: '150x150', type: 'image/jpeg' }] : []
+        });
+        navigator.mediaSession.setActionHandler('play', () => document.getElementById('audio').play());
+        navigator.mediaSession.setActionHandler('pause', () => document.getElementById('audio').pause());
+        navigator.mediaSession.setActionHandler('nexttrack', () => this.playNext());
+        navigator.mediaSession.setActionHandler('previoustrack', () => this.playPrev());
+      }
+
+      formatDuration(seconds) {
+        if (!seconds) return '--:--';
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        return `${m}:${s.toString().padStart(2, '0')}`;
+      }
+
+      renderResults(results) {
+        const container = document.getElementById('streamResults');
+        if (!container) return;
+
+        if (results.length === 0) {
+          container.textContent = '';
+          const empty = document.createElement('div');
+          empty.className = 'stream-no-results';
+          empty.textContent = 'No results found on Audius.';
+          container.appendChild(empty);
+          return;
+        }
+
+        container.textContent = '';
+        results.forEach((r) => {
+          const card = document.createElement('div');
+          card.className = 'stream-result-card';
+          card.dataset.id = String(r.id);
+
+          const img = document.createElement('img');
+          img.className = 'stream-result-thumb';
+          img.loading = 'lazy';
+          img.alt = '';
+          img.src = r.artwork || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBmaWxsPSIjMzMzIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9MTAwIiAvPjwvc3ZnPg==';
+
+          const info = document.createElement('div');
+          info.className = 'stream-result-info';
+          const title = document.createElement('div');
+          title.className = 'stream-result-title';
+          title.textContent = r.title;
+          const meta = document.createElement('div');
+          meta.className = 'stream-result-meta';
+          meta.textContent = `${r.author} • ${this.formatDuration(r.duration)}`;
+          info.appendChild(title);
+          info.appendChild(meta);
+
+          const addBtn = document.createElement('button');
+          addBtn.className = 'stream-result-add';
+          addBtn.type = 'button';
+          addBtn.textContent = '+';
+          addBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.addToQueue(r);
+          });
+
+          card.appendChild(img);
+          card.appendChild(info);
+          card.appendChild(addBtn);
+          card.addEventListener('click', async () => {
+            this.addToQueue(r);
+            if (this.queueIndex === -1) this.queueIndex = 0;
+            await this.playTrack(r);
+          });
+
+          container.appendChild(card);
+        });
+      }
+
+      playTestBeat() {
+        if (typeof audioCtx === 'undefined' || !audioCtx) {
+          if (typeof initAudio === 'function') initAudio();
+          else return;
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        if (typeof analyser !== 'undefined') gain.connect(analyser);
+
+        osc.frequency.setValueAtTime(40, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 1);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 1);
+        console.log('[Audius] Test beat playing...');
+      }
+    }
+    const streamingService = new StreamingService();
+
+    // ========================================================================
     // PARTICLE PHYSICS WORKER - Inline Blob for thread safety
     // ========================================================================
-    const PARTICLE_WORKER_CODE = `
-      self.onmessage = function(e) {
-        const { particles, dt, energy, mode } = e.data;
-        for (let i = 0; i < particles.length; i++) {
-          const p = particles[i];
-          if (p.life <= 0) continue;
-          p.life -= dt;
-          
-          let fx = 0, fy = 0, fz = 0;
-          if (mode === 'stardust') {
-            const r = Math.sqrt(p.x*p.x + p.z*p.z);
-            const a = Math.atan2(p.z, p.x) + dt * (0.5 + energy);
-            p.x = Math.cos(a) * r; p.z = Math.sin(a) * r;
-          } else if (mode === 'neon-rain') {
-            fy = -15.0;
-          } else if (mode === 'quantum') {
-            if (Math.random() < 0.02 * energy) {
-              p.x += (Math.random()-0.5)*20; p.y += (Math.random()-0.5)*20; p.z += (Math.random()-0.5)*20;
-            }
-          } else if (mode === 'filament') {
-            fx = -p.x * 0.5; fy = -p.y * 0.5; fz = -p.z * 0.5;
-          } else if (mode === 'swarm') {
-            const d = Math.sqrt(p.x*p.x + p.y*p.y + p.z*p.z);
-            fx = (Math.random()-0.5)*10 + (Math.sin(p.y*0.1 + dt)*5);
-            fy = (Math.random()-0.5)*10;
-            fz = (Math.random()-0.5)*10 + (Math.cos(p.x*0.1)*5);
-            if (d > 50) { fx -= p.x*0.5; fy -= p.y*0.5; fz -= p.z*0.5; }
-          } else if (mode === 'orbital') {
-            const d = Math.sqrt(p.x*p.x + p.z*p.z);
-            const ang = Math.atan2(p.z, p.x) + dt * (1.0 + 50.0 / (d + 1.0));
-            p.x = Math.cos(ang) * d; p.z = Math.sin(ang) * d;
-            p.y += (Math.random()-0.5) * 0.5;
-            if (Math.abs(p.y) > 20) p.vy -= p.y * 0.1;
-          }
 
-          p.vx += fx * dt; p.vy += fy * dt; p.vz += fz * dt;
-          p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
 
-          if (p.y < -25) { p.y = -25; p.vy *= -0.4; }
-          const d = Math.sqrt(p.x*p.x + p.y*p.y + p.z*p.z);
-          if (d > 70) {
-            const f = 70 / d;
-            p.x *= f; p.y *= f; p.z *= f;
-            p.vx *= -0.3; p.vy *= -0.3; p.vz *= -0.3;
-          }
-        }
-        self.postMessage({ updated: particles });
-      };
-    `;
-
-    class DynamicParticleSystem {
+    class GPUParticleSystem {
       constructor() {
-        const isMobile = (navigator.hardwareConcurrency || 4) <= 4;
-        this.maxParticles = isMobile ? 5000 : 15000;
-        this.activeCount = 0;
-        this.particles = [];
-        this.pool = [];
-        this.historicalPos = Array.from({ length: this.maxParticles }, () => new Float32Array(16 * 3));
-        this.histIdx = new Int32Array(this.maxParticles).fill(0);
+        this.count = 50000;
+        this.size = Math.ceil(Math.sqrt(this.count));
+        this.count = this.size * this.size; // Ensure power of 2 texture
 
-        this.container = new THREE.Group();
-        scene.add(this.container);
+        this.current = 0;
+      }
 
-        this.mat = new THREE.ShaderMaterial({
+      init() {
+        // 1. FBO Setup for Ping-Pong Simulation
+        this.posRad = [this.createTarget(), this.createTarget()];
+        this.velLife = [this.createTarget(), this.createTarget()];
+        // Initialize textures with random data
+        this.initTextures();
+
+        // 2. Simulation Shader (Compute)
+        this.simMaterial = new THREE.ShaderMaterial({
           uniforms: {
+            tPos: { value: null },
+            tVel: { value: null },
             uTime: { value: 0 },
-            uBass: { value: 0 }, uTreble: { value: 0 },
-            uEnergy: { value: 0 }, uPixelRatio: { value: window.devicePixelRatio || 1 }
+            uDt: { value: 0.016 },
+            uBass: { value: 0 },
+            uMid: { value: 0 },
+            uHigh: { value: 0 },
+            uEnergy: { value: 0 },
+            uMode: { value: 0 },
+            uAttractors: { value: [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()] },
+            uAttractorStrengths: { value: [0, 0, 0] },
+            uBeat: { value: 0 }
           },
           vertexShader: `
-            attribute vec3 velocity;
-            attribute float life;
-            attribute vec3 customColor;
-            varying vec3 vColor;
-            varying float vLife;
-            uniform float uBass, uEnergy, uPixelRatio;
+            varying vec2 vUv;
             void main() {
-              vColor = customColor;
-              vLife = life;
-              vec3 pos = position + velocity * 0.02;
-              vec4 mvPos = modelViewMatrix * instanceMatrix * vec4(pos, 1.0);
-              gl_PointSize = (15.0 + uBass * 100.0) * (600.0 / -mvPos.z) * uPixelRatio;
-              gl_Position = projectionMatrix * mvPos;
+              vUv = uv;
+              gl_Position = vec4(position, 1.0);
+            }
+          `,
+          fragmentShader: `
+            uniform sampler2D tPos;
+            uniform sampler2D tVel;
+            uniform float uTime;
+            uniform float uDt;
+            uniform float uBass;
+            uniform float uMid;
+            uniform float uHigh;
+            uniform float uEnergy;
+            uniform int uMode;
+            varying vec2 vUv;
+
+            // Pseudo-random
+            float rand(vec2 co) {
+              return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+            }
+
+            void main() {
+              vec4 posData = texture2D(tPos, vUv);
+              vec4 velData = texture2D(tVel, vUv);
+              
+              vec3 pos = posData.rgb;
+              float mass = posData.a; // Stored mass/variance
+              vec3 vel = velData.rgb;
+              float life = velData.a;
+
+              life -= uDt * (0.2 + rand(vUv + uTime)*0.5);
+
+              // Respawn logic
+              if (life <= 0.0) {
+                life = 1.0 + rand(vUv + 1.0);
+                // Respawn shape based on mode
+                float a = rand(vUv + 2.0) * 6.28318;
+                float r = rand(vUv + 3.0) * 50.0;
+                pos = vec3(cos(a)*r, (rand(vUv+4.0)-0.5)*50.0, sin(a)*r);
+                vel = vec3(0.0);
+              }
+
+              // Physics
+              vec3 force = vec3(0.0);
+
+              // 1. Gravity / Flow
+              if (uMode == 1) { // Neon Rain
+                force.y -= 20.0;
+              } else if (uMode == 2) { // Vortex
+                 vec3 center = vec3(0.0);
+                 vec3 diff = center - pos;
+                 vec3 tang = cross(normalize(pos), vec3(0,1,0));
+                 force += diff * 0.5 + tang * 30.0;
+              } else { // Stardust (Default)
+                // Gentle curl noise approximation
+                force.x += sin(pos.y * 0.1 + uTime) * 10.0;
+                force.z += cos(pos.x * 0.1 + uTime) * 10.0;
+              }
+
+              // Audio Reactivity
+              float energyForce = uBass * 50.0;
+              vel += normalize(pos) * energyForce * uDt * (rand(vUv) > 0.8 ? 1.0 : 0.0);
+              
+              // Integration
+              vel += force * uDt;
+              vel *= 0.96; // Drag
+              pos += vel * uDt;
+
+              gl_FragColor = vec4(vel, life); // Write to Vel target (though we need MRT or 2 passes usually, here we pack logic)
+              // Note: Standard WebGL1/2 setup without MRT requires 2 separate draw calls or shaders.
+              // For simplicity in this single-file constraints, we will assume a simpler "Update Position" shader that does both or use a simple Euler step in one generic data pass if possible, 
+              // BUT properly we need two shaders or MRT.
+              // To fit in this constraints: we'll simulate VELOCITY updates in the Position shader for this simple particle system, 
+              // or just store "Velocity" as implicit difference. 
+              // Let's use a "Single Pass" Physics trick: Store Pos + Vel in 2 textures, write Pos in pass 1, Vel in pass 2? 
+              // Actually, simply: We will render TWICE. Once to update Velocity Texture, Once to update Position Texture.
+            }
+          ` // We will implement the proper shader splitting in init()
+        });
+
+        // Split Shaders for Velocity and Position Updates (Ping Pong)
+        this.velShader = this.simMaterial.clone();
+        this.velShader.fragmentShader = `
+          uniform sampler2D tPos;
+          uniform sampler2D tVel;
+          uniform float uTime;
+          uniform float uDt;
+          uniform float uBass;
+          uniform float uMid;
+          uniform float uHigh;
+          uniform float uEnergy;
+          uniform float uBeat;
+          uniform vec3 uAttractors[3];
+          uniform float uAttractorStrengths[3];
+          uniform int uMode;
+          varying vec2 vUv;
+
+          float rand(vec2 co){ return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453); }
+
+          void main() {
+            vec4 pData = texture2D(tPos, vUv);
+            vec4 vData = texture2D(tVel, vUv);
+            vec3 pos = pData.rgb;
+            vec3 vel = vData.rgb;
+            float life = vData.a;
+
+            life -= uDt * (0.05 + rand(vUv + uTime)*0.2); // Decay
+
+            if (life <= 0.0) {
+              life = 1.0;
+              vel = vec3((rand(vUv+1.0)-0.5)*10.0, (rand(vUv+2.0)-0.5)*10.0, (rand(vUv+3.0)-0.5)*10.0);
+            } else {
+               // Physics
+               vec3 force = vec3(0.0);
+               // Simple curl
+               force.x += sin(pos.y * 0.1 + uTime) * 20.0;
+               force.y += sin(pos.z * 0.1 + uTime*1.3) * 20.0;
+               force.z += sin(pos.x * 0.1 + uTime*0.7) * 20.0;
+
+               // Enhanced Reactivity: Mid Swirl & High Jitter
+               vec3 swirl = vec3(sin(pos.y * 0.5 + uTime), cos(pos.z * 0.5 + uTime), sin(pos.x * 0.5 + uTime)) * uMid * 40.0;
+               force += swirl;
+
+               vec3 jitter = vec3(rand(vUv + uTime) - 0.5, rand(vUv + uTime + 1.2) - 0.5, rand(vUv + uTime + 2.4) - 0.5) * uHigh * 60.0;
+               force += jitter;
+               
+               // Audio Push
+               force += normalize(pos) * uEnergy * 80.0;
+               
+               // Attractor Logic
+               for(int i=0; i<3; i++) {
+                 vec3 dir = uAttractors[i] - pos;
+                 float dist = length(dir);
+                 force += normalize(dir) * (uAttractorStrengths[i] * 500.0) / (dist * 0.1 + 1.0);
+               }
+
+               // Beat Blast
+               if (uBeat > 0.5) {
+                 force += normalize(pos) * 500.0;
+               }
+               
+               vel += force * uDt;
+               vel *= (0.92 - uEnergy * 0.05); // Dynamic Damping
+            }
+            gl_FragColor = vec4(vel, life);
+          }
+        `;
+
+        this.posShader = this.simMaterial.clone();
+        this.posShader.fragmentShader = `
+          uniform sampler2D tPos;
+          uniform sampler2D tVel;
+          uniform float uDt;
+          varying vec2 vUv;
+          
+          float rand(vec2 co){ return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453); }
+
+          void main() {
+            vec4 pData = texture2D(tPos, vUv);
+            vec4 vData = texture2D(tVel, vUv);
+            vec3 pos = pData.rgb;
+            vec3 vel = vData.rgb;
+            float life = vData.a;
+
+            if (life >= 1.0) { // Just respawned
+               // Reset position
+               float a = rand(vUv) * 6.28;
+               float r = rand(vUv+1.0) * 30.0;
+               pos = vec3(cos(a)*r, (rand(vUv+2.0)-0.5)*30.0, sin(a)*r);
+            } else {
+               pos += vel * uDt;
+            }
+            gl_FragColor = vec4(pos, pData.a); // Persist mass
+          }
+        `;
+
+        this.simMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.simMaterial);
+        this.scene = new THREE.Scene();
+        this.scene.add(this.simMesh);
+        this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+        // 3. Rendering - LOD System
+        this.material = new THREE.ShaderMaterial({
+          uniforms: {
+            tPos: { value: null },
+            tVel: { value: null },
+            uMid: { value: 0 },
+            uHigh: { value: 0 },
+            uSizePulse: { value: 0 },
+            uStretch: { value: 0 },
+            uColor: { value: new THREE.Color(0x88ccff) }
+          },
+          vertexShader: `
+            uniform sampler2D tPos;
+            uniform sampler2D tVel;
+            uniform float uMid;
+            uniform float uHigh;
+            uniform float uSizePulse;
+            uniform float uStretch;
+            attribute vec2 reference; // uv coordinate in texture
+            varying vec3 vColor;
+            varying float vAlpha;
+            
+            void main() {
+              vec4 posData = texture2D(tPos, reference);
+              vec4 velData = texture2D(tVel, reference);
+              vec3 p = posData.rgb;
+              float life = velData.a;
+
+              vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
+              float dist = length(mvPosition.xyz);
+              
+              // LOD Logic in shader
+              float scale = 0.0;
+              
+              #ifdef LOD_HIGH
+                if (dist < 80.0) scale = 1.0;
+              #elif defined(LOD_MID)
+                if (dist >= 80.0 && dist < 250.0) scale = 2.0;
+              #else
+                if (dist >= 250.0) scale = 4.0;
+              #endif
+
+              vAlpha = life;
+              // Use uniform color instead of hardcoded blue
+              // Use uniform color instead of hardcoded blue
+              vColor = uColor * (0.5 + 0.5 * length(velData.rgb)*0.1);
+
+              if (scale == 0.0 || life <= 0.0) {
+                 gl_Position = vec4(2.0, 2.0, 2.0, 1.0); // Clip
+                 return;
+              }
+
+              // Billboard logic for Mid/Low
+              #ifndef LOD_HIGH
+              mvPosition = modelViewMatrix * vec4(p, 1.0);
+                
+                // Velocity-based stretching (Billboard)
+                vec3 vRel = (viewMatrix * vec4(velData.rgb, 0.0)).xyz;
+                float speed = length(vRel);
+                vec2 stretch = vec2(1.0);
+                if (speed > 5.0) stretch.y = 1.0 + speed * 0.1 * uStretch;
+                
+                mvPosition.xy += position.xy * scale * (1.0 + uSizePulse) * stretch;
+                gl_Position = projectionMatrix * mvPosition;
+              #else
+                // 3D Geometry
+                vec3 instancePos = p;
+                float s = 0.5 * (1.0 + uSizePulse);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(instancePos + position * s, 1.0);
+              #endif
             }
           `,
           fragmentShader: `
             varying vec3 vColor;
-            varying float vLife;
-            uniform float uTreble;
+            varying float vAlpha;
             void main() {
-              float d = length(gl_PointCoord - 0.5);
-              if (d > 0.5) discard;
-              float g = exp(-d * 8.0);
-              gl_FragColor = vec4(vColor * (1.0 + uTreble * 3.0), vLife * g);
+              if (vAlpha <= 0.01) discard;
+              gl_FragColor = vec4(vColor, vAlpha * 0.4);
             }
           `,
-          transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
+          transparent: true,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
         });
 
-        const geom = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3()]);
-        this.mesh = new THREE.InstancedMesh(geom, this.mat, this.maxParticles);
-        this.mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        // Create LOD Meshes
+        this.group = new THREE.Group();
+        scene.add(this.group);
 
-        this.vArr = new Float32Array(this.maxParticles * 3);
-        this.lArr = new Float32Array(this.maxParticles);
-        this.cArr = new Float32Array(this.maxParticles * 3);
-        this.mesh.geometry.setAttribute('velocity', new THREE.InstancedBufferAttribute(this.vArr, 3));
-        this.mesh.geometry.setAttribute('life', new THREE.InstancedBufferAttribute(this.lArr, 1));
-        this.mesh.geometry.setAttribute('customColor', new THREE.InstancedBufferAttribute(this.cArr, 3));
-        this.container.add(this.mesh);
+        // 3.1 High Detail: Icosahedron
+        this.meshHigh = this.createInstancedMesh(new THREE.IcosahedronGeometry(0.5, 0), 'LOD_HIGH');
+        // 3.2 Mid Detail: Plane (Billboard)
+        this.meshMid = this.createInstancedMesh(new THREE.PlaneGeometry(1, 1), 'LOD_MID');
+        // 3.3 Low Detail: Small Quad
+        this.meshLow = this.createInstancedMesh(new THREE.PlaneGeometry(0.5, 0.5), 'LOD_LOW');
 
-        const tGeom = new THREE.BufferGeometry();
-        this.tPos = new Float32Array(this.maxParticles * 16 * 3 * 2);
-        this.tCol = new Float32Array(this.maxParticles * 16 * 3 * 2);
-        tGeom.setAttribute('position', new THREE.BufferAttribute(this.tPos, 3));
-        tGeom.setAttribute('color', new THREE.BufferAttribute(this.tCol, 3));
-        this.trailMesh = new THREE.LineSegments(tGeom, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, opacity: 0.4 }));
-        this.container.add(this.trailMesh);
+        this.meshHigh.frustumCulled = false;
+        this.meshMid.frustumCulled = false;
+        this.meshLow.frustumCulled = false;
 
-        const blob = new Blob([PARTICLE_WORKER_CODE], { type: 'application/javascript' });
-        this.worker = new Worker(URL.createObjectURL(blob));
-        this.worker.onmessage = (e) => { this.particles = e.data.updated; };
-
-        this.tMat = new THREE.Matrix4();
-        this.tVec = new THREE.Vector3();
-        this.spawnTimer = 0;
+        // Initialize uniforms immediately prevents "black hole" at 0,0,0
+        const startPos = this.posRad[0].texture;
+        const startVel = this.velLife[0].texture;
+        [this.meshHigh, this.meshMid, this.meshLow].forEach(m => {
+          m.material.uniforms.tPos.value = startPos;
+          m.material.uniforms.tVel.value = startVel;
+        });
       }
 
-      spawn(patt, count = 1) {
-        for (let i = 0; i < count; i++) {
-          if (this.activeCount >= this.maxParticles) return;
-          const p = this.pool.length > 0 ? this.pool.pop() : { x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, life: 1 };
-          p.life = 1.0 + Math.random() * 2.5;
-          if (patt === 'radial') {
-            const a = Math.random() * TAU, s = 5 + Math.random() * 8;
-            p.x = 0; p.y = 0; p.z = 0; p.vx = Math.cos(a) * s; p.vy = (Math.random() - 0.5) * 10; p.vz = Math.sin(a) * s;
-          } else if (patt === 'vortex') {
-            const a = Math.random() * TAU; p.x = Math.cos(a) * 15; p.y = (Math.random() - 0.5) * 30; p.z = Math.sin(a) * 15;
-            p.vx = -p.z * 1.2; p.vy = 0; p.vz = p.x * 1.2;
-          } else {
-            p.x = (Math.random() - 0.5) * 120; p.y = 60; p.z = (Math.random() - 0.5) * 120;
-            p.vx = 0; p.vy = -20 - Math.random() * 20; p.vz = 0;
-          }
-          this.particles.push(p);
-          this.activeCount++;
-        }
+      createTarget() {
+        return new THREE.WebGLRenderTarget(this.size, this.size, {
+          minFilter: THREE.NearestFilter,
+          magFilter: THREE.NearestFilter,
+          format: THREE.RGBAFormat,
+          type: THREE.FloatType, // Requires OES_texture_float
+          stencilBuffer: false,
+          depthBuffer: false
+        });
       }
 
-      update(dt, t, audio) {
-        if (!config.dynamicParticlesEnabled) { this.container.visible = false; return; }
-        this.container.visible = true;
-        const rate = config.dynParticleSpawnRate * (config.dynAudioReactiveSpawn ? (1 + audio.onsetGlobal * 4) : 1);
-        this.spawnTimer += dt;
-        if (this.spawnTimer > 1 / rate) {
-          const pat = ['radial', 'vortex', 'matrix'][Math.floor(Math.random() * 3)];
-          this.spawn(pat, Math.ceil(rate * dt));
-          this.spawnTimer = 0;
-        }
-        this.worker.postMessage({ particles: this.particles, dt, energy: audio.energy, mode: config.particleMode || 'stardust' });
-        this.mat.uniforms.uBass.value = audio.smoothBass;
-        this.mat.uniforms.uTreble.value = audio.smoothHigh;
-        this.mat.uniforms.uEnergy.value = audio.energy;
-        this.mat.uniforms.uTime.value = t;
+      initTextures() {
+        const dataPos = new Float32Array(this.count * 4);
+        const dataVel = new Float32Array(this.count * 4);
+        for (let i = 0; i < this.count; i++) {
+          dataPos[i * 4] = (Math.random() - 0.5) * 120;
+          dataPos[i * 4 + 1] = (Math.random() - 0.5) * 120;
+          dataPos[i * 4 + 2] = (Math.random() - 0.5) * 120;
+          dataPos[i * 4 + 3] = Math.random(); // mass
 
-        let tIdx = 0;
-        for (let i = 0; i < this.particles.length; i++) {
-          const p = this.particles[i];
-          if (p.life <= 0) {
-            this.pool.push(p);
-            // Swap and pop
-            this.particles[i] = this.particles[this.particles.length - 1];
-            this.particles.pop();
-            this.histIdx[i] = this.histIdx[this.particles.length]; // Sync history index if needed
-            this.activeCount--; i--; continue;
-          }
-          this.tVec.set(p.x, p.y, p.z);
-          this.tMat.setPosition(this.tVec);
-          this.mesh.setMatrixAt(i, this.tMat);
-          this.vArr[i * 3] = p.vx; this.vArr[i * 3 + 1] = p.vy; this.vArr[i * 3 + 2] = p.vz;
-          this.lArr[i] = p.life;
-          this.cArr[i * 3] = 1; this.cArr[i * 3 + 1] = 0.4 + audio.energy * 0.6; this.cArr[i * 3 + 2] = 1;
-
-          if (config.dynParticleTrailLength > 0) {
-            const h = this.historicalPos[i];
-            const ptr = (this.histIdx[i] % 16) * 3;
-            h[ptr] = p.x; h[ptr + 1] = p.y; h[ptr + 2] = p.z;
-            this.histIdx[i]++;
-            const count = Math.min(this.histIdx[i], 16);
-            for (let j = 1; j < count; j++) {
-              const a = ((this.histIdx[i] - j) % 16) * 3, b = ((this.histIdx[i] - j - 1) % 16) * 3;
-              this.tPos[tIdx * 6] = h[a]; this.tPos[tIdx * 6 + 1] = h[a + 1]; this.tPos[tIdx * 6 + 2] = h[a + 2];
-              this.tPos[tIdx * 6 + 3] = h[b]; this.tPos[tIdx * 6 + 4] = h[b + 1]; this.tPos[tIdx * 6 + 5] = h[b + 2];
-              const c = 0.3 * (1 - j / 16);
-              this.tCol[tIdx * 6] = this.tCol[tIdx * 6 + 3] = c; this.tCol[tIdx * 6 + 1] = this.tCol[tIdx * 6 + 4] = c; this.tCol[tIdx * 6 + 2] = this.tCol[tIdx * 6 + 5] = c;
-              tIdx++;
-            }
-          }
+          dataVel[i * 4] = 0; dataVel[i * 4 + 1] = 0; dataVel[i * 4 + 2] = 0;
+          dataVel[i * 4 + 3] = Math.random(); // life
         }
-        this.mesh.instanceMatrix.needsUpdate = true;
-        this.mesh.geometry.attributes.velocity.needsUpdate = true;
-        this.mesh.geometry.attributes.life.needsUpdate = true;
-        this.mesh.geometry.attributes.customColor.needsUpdate = true;
-        this.mesh.count = Math.max(0, this.activeCount);
-        if (config.dynParticleTrailLength > 0) {
-          this.trailMesh.visible = true;
-          this.trailMesh.geometry.setDrawRange(0, tIdx * 2);
-          this.trailMesh.geometry.attributes.position.needsUpdate = true;
-          this.trailMesh.geometry.attributes.color.needsUpdate = true;
-        } else { this.trailMesh.visible = false; }
+        const texPos = new THREE.DataTexture(dataPos, this.size, this.size, THREE.RGBAFormat, THREE.FloatType);
+        texPos.needsUpdate = true;
+        const texVel = new THREE.DataTexture(dataVel, this.size, this.size, THREE.RGBAFormat, THREE.FloatType);
+        texVel.needsUpdate = true;
+
+        // Render initial data to targets
+        this.copyTexture(texPos, this.posRad[0]);
+        this.copyTexture(texPos, this.posRad[1]);
+        this.copyTexture(texVel, this.velLife[0]);
+        this.copyTexture(texVel, this.velLife[1]);
+      }
+
+      copyTexture(tex, target) {
+        // Simple blit helper if needed, or just relying on first render cycle logic
+        // For simplicity, we just assign to the quad material once and render
+        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial({ map: tex }));
+        const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        renderer.setRenderTarget(target);
+        renderer.render(mesh, cam);
+        renderer.setRenderTarget(null);
+      }
+
+      createInstancedMesh(geom, define) {
+        const mat = this.material.clone();
+        mat.defines = { [define]: '' };
+        const mesh = new THREE.InstancedMesh(geom, mat, this.count);
+
+        // Generate UV references
+        const references = new Float32Array(this.count * 2);
+        for (let i = 0; i < this.count; i++) {
+          const x = (i % this.size) / this.size;
+          const y = Math.floor(i / this.size) / this.size;
+          references[i * 2] = x + 0.5 / this.size;
+          references[i * 2 + 1] = y + 0.5 / this.size;
+        }
+        mesh.geometry.setAttribute('reference', new THREE.InstancedBufferAttribute(references, 2));
+        this.group.add(mesh);
+        return mesh;
+      }
+
+      update(dt, t, audio, col, isBeat) {
+        if (!this.group || !config.dynamicParticlesEnabled) {
+          if (this.group && this.group.visible) this.group.visible = false;
+          return;
+        }
+        if (!this.group.visible) this.group.visible = true;
+
+        if (col) {
+          this.meshHigh.material.uniforms.uColor.value.copy(col);
+          this.meshMid.material.uniforms.uColor.value.copy(col);
+          this.meshLow.material.uniforms.uColor.value.copy(col);
+        }
+
+        // 1. Update Physics (Ping Pong)
+        const dest = 1 - this.current;
+        const cur = this.current;
+
+        // Pass 1: Update Velocity
+        this.simMesh.material = this.velShader;
+        this.velShader.uniforms.tPos.value = this.posRad[cur].texture;
+        this.velShader.uniforms.tVel.value = this.velLife[cur].texture;
+        this.velShader.uniforms.uDt.value = dt;
+        this.velShader.uniforms.uTime.value = t;
+        this.velShader.uniforms.uBass.value = audio.smoothBass;
+        this.velShader.uniforms.uMid.value = audio.smoothMid;
+        this.velShader.uniforms.uHigh.value = audio.smoothHigh;
+        this.velShader.uniforms.uEnergy.value = audio.energy;
+        this.velShader.uniforms.uBeat.value = isBeat ? 1.0 : 0.0;
+
+        // Attractor positions (Circular Orbits)
+        const time = t * 0.5;
+        const radius = 30 + audio.smoothBass * 20;
+        this.velShader.uniforms.uAttractors.value[0].set(Math.cos(time) * radius, Math.sin(time * 0.7) * radius, Math.sin(time) * radius);
+        this.velShader.uniforms.uAttractors.value[1].set(Math.cos(time * 1.3) * -radius, Math.sin(time * 0.8) * radius, Math.cos(time * 0.5) * radius);
+        this.velShader.uniforms.uAttractors.value[2].set(Math.sin(time * 0.9) * radius, Math.cos(time * 1.1) * -radius, Math.sin(time * 1.2) * -radius);
+
+        const attractMult = config.dynAttractionStrength || 1.0;
+        this.velShader.uniforms.uAttractorStrengths.value[0] = audio.smoothBass * attractMult;
+        this.velShader.uniforms.uAttractorStrengths.value[1] = audio.smoothMid * attractMult;
+        this.velShader.uniforms.uAttractorStrengths.value[2] = audio.smoothHigh * attractMult;
+
+        const sizeMult = config.dynSizeReactivity || 1.0;
+        const sizePulse = (audio.onsetKick * 0.5 + audio.onsetSnare * 0.3) * 2.0 * sizeMult;
+
+        const stretchAmt = config.dynVelocityStretching || 1.0;
+
+        this.meshHigh.material.uniforms.uMid.value = audio.smoothMid;
+        this.meshHigh.material.uniforms.uHigh.value = audio.smoothHigh;
+        this.meshHigh.material.uniforms.uSizePulse.value = sizePulse;
+        this.meshHigh.material.uniforms.uStretch.value = stretchAmt;
+
+        this.meshMid.material.uniforms.uMid.value = audio.smoothMid;
+        this.meshMid.material.uniforms.uHigh.value = audio.smoothHigh;
+        this.meshMid.material.uniforms.uSizePulse.value = sizePulse;
+        this.meshMid.material.uniforms.uStretch.value = stretchAmt;
+
+        this.meshLow.material.uniforms.uMid.value = audio.smoothMid;
+        this.meshLow.material.uniforms.uHigh.value = audio.smoothHigh;
+        this.meshLow.material.uniforms.uSizePulse.value = sizePulse;
+        this.meshLow.material.uniforms.uStretch.value = stretchAmt;
+
+        renderer.setRenderTarget(this.velLife[dest]);
+        renderer.render(this.scene, this.camera);
+
+        // Pass 2: Update Position
+        this.simMesh.material = this.posShader;
+        this.posShader.uniforms.tPos.value = this.posRad[cur].texture;
+        this.posShader.uniforms.tVel.value = this.velLife[dest].texture; // Use new vel
+        this.posShader.uniforms.uDt.value = dt;
+
+        renderer.setRenderTarget(this.posRad[dest]);
+        renderer.render(this.scene, this.camera);
+
+        renderer.setRenderTarget(null);
+
+        // 2. Update LOD Meshes
+        const nextTex = this.posRad[dest].texture;
+        const velTex = this.velLife[dest].texture;
+        [this.meshHigh, this.meshMid, this.meshLow].forEach(m => {
+          m.material.uniforms.tPos.value = nextTex;
+          m.material.uniforms.tVel.value = velTex;
+        });
+
+        this.current = dest;
       }
     }
-    const dynamicParticles = new DynamicParticleSystem();
+    const dynamicParticles = new GPUParticleSystem();
+    dynamicParticles.init();
 
 
     const music = { beats: 0, phase: 0, bpmSmooth: 120, lastSeenBar: -1 };
@@ -3948,8 +4732,8 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       wireframeMesh.visible = config.showWireframeCore;
       scene.add(wireframeMesh);
 
-      const rimVert = 'varying vec3 vN, vW, vPos; void main(){ vN = normalize(normalMatrix * normal); vW = (modelMatrix * vec4(position, 1.0)).xyz; vPos = position; gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0); }';
-      const rimFrag = 'uniform vec3 uColor; uniform float uIntensity, uPower, uTime; varying vec3 vN, vW, vPos; void main(){ vec3 V = normalize(cameraPosition - vW); float fres = pow(1.0 - clamp(dot(normalize(vN), V), 0.0, 1.0), uPower); float irid = sin(length(vPos) * 3.0 + uTime * 2.0) * 0.5 + 0.5; vec3 col = mix(uColor, uColor * vec3(1.2, 0.9, 1.1), irid * 0.3); gl_FragColor = vec4(col * fres * uIntensity, fres * 0.85); }';
+      const rimVert = 'precision highp float; varying vec3 vN, vW, vPos; void main(){ vN = normalize(normalMatrix * normal); vW = (modelMatrix * vec4(position, 1.0)).xyz; vPos = position; gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0); }';
+      const rimFrag = 'precision highp float; uniform vec3 uColor; uniform float uIntensity, uPower, uTime; varying vec3 vN, vW, vPos; void main(){ vec3 V = normalize(cameraPosition - vW); float fres = pow(1.0 - clamp(dot(normalize(vN), V), 0.0, 1.0), uPower); float irid = sin(length(vPos) * 3.0 + uTime * 2.0) * 0.5 + 0.5; vec3 col = mix(uColor, uColor * vec3(1.2, 0.9, 1.1), irid * 0.3); gl_FragColor = vec4(col * fres * uIntensity, fres * 0.85); }';
       rimMesh = new THREE.Mesh(geom, new THREE.ShaderMaterial({
         uniforms: { uColor: { value: new THREE.Color(1, 1, 1) }, uIntensity: { value: 1.0 }, uPower: { value: 2.6 }, uTime: { value: 0 } },
         vertexShader: rimVert, fragmentShader: rimFrag,
@@ -4042,8 +4826,8 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     function buildLightRays() {
       lightRays.forEach(r => scene.remove(r)); lightRays = [];
       if (!config.showLightRays) return;
-      const rayVert = 'varying float vY; void main() { vY = position.y / 50.0; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }';
-      const rayFrag = 'uniform vec3 uColor; uniform float uIntensity; varying float vY; void main() { gl_FragColor = vec4(uColor, (1.0 - vY) * uIntensity * (1.0 - vY)); }';
+      const rayVert = 'precision highp float; varying float vY; void main() { vY = position.y / 50.0; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }';
+      const rayFrag = 'precision highp float; uniform vec3 uColor; uniform float uIntensity; varying float vY; void main() { gl_FragColor = vec4(uColor, (1.0 - vY) * uIntensity * (1.0 - vY)); }';
       for (let i = 0; i < 12; i++) {
         const mat = new THREE.ShaderMaterial({
           uniforms: { uColor: { value: new THREE.Color(1, 1, 1) }, uIntensity: { value: 0.3 } },
@@ -4060,8 +4844,8 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     function buildAurora() {
       if (auroraLayer) scene.remove(auroraLayer);
       if (!config.showAurora) return;
-      const aVert = 'uniform float uTime, uEnergy; varying vec2 vUv; varying float vDisp; void main() { vUv = uv; vec3 pos = position; float wave = sin(pos.x * 0.15 + uTime * 0.5) * cos(pos.x * 0.08 + uTime * 0.3) + sin(pos.x * 0.22 + uTime * 0.7) * 0.5; pos.z += wave * (3.0 + uEnergy * 5.0); vDisp = wave; gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0); }';
-      const aFrag = 'uniform vec3 uColorA, uColorB; uniform float uEnergy; varying vec2 vUv; varying float vDisp; void main() { vec3 col = mix(uColorA, uColorB, vUv.y + vDisp * 0.2); float alpha = (1.0 - vUv.y) * 0.3 * (0.5 + uEnergy) * smoothstep(0.0, 0.3, vUv.y); gl_FragColor = vec4(col, alpha); }';
+      const aVert = 'precision highp float; uniform float uTime, uEnergy; varying vec2 vUv; varying float vDisp; void main() { vUv = uv; vec3 pos = position; float wave = sin(pos.x * 0.15 + uTime * 0.5) * cos(pos.x * 0.08 + uTime * 0.3) + sin(pos.x * 0.22 + uTime * 0.7) * 0.5; pos.z += wave * (3.0 + uEnergy * 5.0); vDisp = wave; gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0); }';
+      const aFrag = 'precision highp float; uniform vec3 uColorA, uColorB; uniform float uEnergy; varying vec2 vUv; varying float vDisp; void main() { vec3 col = mix(uColorA, uColorB, vUv.y + vDisp * 0.2); float alpha = (1.0 - vUv.y) * 0.3 * (0.5 + uEnergy) * smoothstep(0.0, 0.3, vUv.y); gl_FragColor = vec4(col, alpha); }';
       auroraLayer = new THREE.Mesh(new THREE.PlaneGeometry(80, 30, 64, 32), new THREE.ShaderMaterial({
         uniforms: { uTime: { value: 0 }, uColorA: { value: new THREE.Color(0x00ff88) }, uColorB: { value: new THREE.Color(0xff00ff) }, uEnergy: { value: 0 } },
         vertexShader: aVert, fragmentShader: aFrag,
@@ -4073,8 +4857,8 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     function buildEnergyField() {
       if (energyFieldMesh) scene.remove(energyFieldMesh);
       if (!config.showEnergyField) return;
-      const eVert = 'uniform float uTime, uEnergy; varying vec3 vNormal, vPos; void main() { vNormal = normal; vPos = position; vec3 pos = position; float pulse = sin(length(position) * 2.0 - uTime * 3.0) * 0.5 + 0.5; pos += normal * pulse * uEnergy * 2.0; gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0); }';
-      const eFrag = 'uniform vec3 uColor; uniform float uTime, uEnergy; varying vec3 vNormal, vPos; void main() { float fresnel = pow(1.0 - abs(dot(normalize(vNormal), vec3(0.0, 0.0, 1.0))), 3.0); float pattern = sin(vPos.x * 5.0 + uTime) * sin(vPos.y * 5.0 + uTime * 1.3) * sin(vPos.z * 5.0 + uTime * 0.7); gl_FragColor = vec4(uColor, fresnel * 0.15 * (0.5 + uEnergy) * (0.5 + pattern * 0.5)); }';
+      const eVert = 'precision highp float; uniform float uTime, uEnergy; varying vec3 vNormal, vPos; void main() { vNormal = normal; vPos = position; vec3 pos = position; float pulse = sin(length(position) * 2.0 - uTime * 3.0) * 0.5 + 0.5; pos += normal * pulse * uEnergy * 2.0; gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0); }';
+      const eFrag = 'precision highp float; uniform vec3 uColor; uniform float uTime, uEnergy; varying vec3 vNormal, vPos; void main() { float fresnel = pow(1.0 - abs(dot(normalize(vNormal), vec3(0.0, 0.0, 1.0))), 3.0); float pattern = sin(vPos.x * 5.0 + uTime) * sin(vPos.y * 5.0 + uTime * 1.3) * sin(vPos.z * 5.0 + uTime * 0.7); gl_FragColor = vec4(uColor, fresnel * 0.15 * (0.5 + uEnergy) * (0.5 + pattern * 0.5)); }';
       energyFieldMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(20, 3), new THREE.ShaderMaterial({
         uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(0x888888) }, uEnergy: { value: 0 } },
         vertexShader: eVert, fragmentShader: eFrag,
@@ -4137,6 +4921,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 
       // Billboarded rings (always face the camera) - more readable from any angle
       const shockVert = `
+        precision highp float;
         varying vec2 vUv;
         void main() {
           vUv = uv;
@@ -4144,6 +4929,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         }
         `;
       const shockFrag = `
+        precision highp float;
         uniform vec3 uColor;
         uniform float uOpacity;
         varying vec2 vUv;
@@ -4216,13 +5002,14 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       new THREE.Vector2(window.innerWidth, window.innerHeight),
       config.bloomStrength,
       config.bloomRadius,
-      0.12  // Lower threshold for more bloom on bright areas
+      0.2  // Higher threshold to reduce full-screen blur
     );
-    bloomPass.threshold = 0.12;
+    bloomPass.threshold = 0.2;
     composer.addPass(bloomPass);
 
     // Screen FX shader (vignette / grain / aberration / scanlines / kaleido / glitch / film)
     const screenVert = /* glsl */`
+      precision highp float;
       varying vec2 vUv;
         void main() {
           vUv = uv;
@@ -4261,18 +5048,6 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       uniform float uGradeVibrance;
       uniform float uHueRotate;
 
-      // Filmic Color Grading Uniforms
-      uniform sampler2D uCurvesR;
-      uniform sampler2D uCurvesG;
-      uniform sampler2D uCurvesB;
-      uniform vec3 uSplitToneShadows;
-      uniform vec3 uSplitToneHighlights;
-      uniform float uSplitToneBalance;
-      uniform float uColorTemp;
-      uniform float uTint;
-      uniform float uFilmCurve;
-      uniform mat3 uChannelMixer;
-
       // LUT Uniforms
       uniform sampler3D uLUT;
       uniform float uLutEnabled;
@@ -4293,185 +5068,12 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           return mix(vec3(l), c, s);
         }
 
-      // RGB to HSV conversion
-      vec3 rgb2hsv(vec3 c) {
-        vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
-        vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
-        vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
-        float d = q.x - min(q.w, q.y);
-        float e = 1.0e-10;
-        return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
-      }
-
-      // HSV to RGB conversion
-      vec3 hsv2rgb(vec3 c) {
-        vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-        vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-        return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-      }
-
-      // RGB to HSL conversion
-      vec3 rgb2hsl(vec3 c) {
-        float maxVal = max(c.r, max(c.g, c.b));
-        float minVal = min(c.r, min(c.g, c.b));
-        float delta = maxVal - minVal;
-        float l = (maxVal + minVal) * 0.5;
-        float h = 0.0;
-        float s = 0.0;
-        if (delta > 0.0) {
-          s = l > 0.5 ? delta / (2.0 - maxVal - minVal) : delta / (maxVal + minVal);
-          if (maxVal == c.r) {
-            h = mod((c.g - c.b) / delta + (c.g < c.b ? 6.0 : 0.0), 6.0) / 6.0;
-          } else if (maxVal == c.g) {
-            h = ((c.b - c.r) / delta + 2.0) / 6.0;
-          } else {
-            h = ((c.r - c.g) / delta + 4.0) / 6.0;
-          }
-        }
-        return vec3(h, s, l);
-      }
-
-      float hue2rgb(float p, float q, float t) {
-        if (t < 0.0) t += 1.0;
-        if (t > 1.0) t -= 1.0;
-        if (t < 1.0 / 6.0) return p + (q - p) * 6.0 * t;
-        if (t < 1.0 / 2.0) return q;
-        if (t < 2.0 / 3.0) return p + (q - p) * (2.0 / 3.0 - t) * 6.0;
-        return p;
-      }
-
-      // HSL to RGB conversion
-      vec3 hsl2rgb(vec3 c) {
-        vec3 rgb = vec3(c.z);
-        if (c.y > 0.0) {
-          float q = c.z < 0.5 ? c.z * (1.0 + c.y) : c.z + c.y - c.z * c.y;
-          float p = 2.0 * c.z - q;
-          rgb.r = hue2rgb(p, q, c.x + 1.0 / 3.0);
-          rgb.g = hue2rgb(p, q, c.x);
-          rgb.b = hue2rgb(p, q, c.x - 1.0 / 3.0);
-        }
-        return rgb;
-      }
-
-      // Improved Vibrance - HSV-based, protects saturated colors
       vec3 applyVibrance(vec3 c, float v) {
-        vec3 hsv = rgb2hsv(c);
-        float saturation = hsv.y;
-        float relativeLum = dot(c, vec3(0.2126, 0.7152, 0.0722));
-        float saturationBoost = (1.0 - saturation) * v;
-        hsv.y = clamp(saturation + saturationBoost, 0.0, 1.0);
-        return hsv2rgb(hsv);
-      }
-
-      // RGB Curves - Sample from 64x1 DataTexture
-      float applyCurve(float val, sampler2D curveTex) {
-        float u = clamp(val, 0.0, 1.0);
-        return texture2D(curveTex, vec2(u, 0.5)).r;
-      }
-
-      // Film Response Curves
-      vec3 applyFilmCurve(vec3 col, float curveType) {
-        if (curveType < 0.5) return col; // None
-        
-        vec3 result = col;
-        if (curveType >= 0.5 && curveType < 1.5) {
-          // Kodak Vision3 500T
-          float toe = 0.18;
-          float shoulder = 0.9;
-          result.r = col.r < toe ? mix(0.0, toe, smoothstep(0.0, toe, col.r)) : 
-                   (col.r < shoulder ? mix(toe, shoulder, (col.r - toe) / (shoulder - toe)) :
-                   mix(shoulder, 1.0, 1.0 - exp(-(col.r - shoulder) * 5.0)));
-          result.g = col.g < toe ? mix(0.0, toe, smoothstep(0.0, toe, col.g)) : 
-                   (col.g < shoulder ? mix(toe, shoulder, (col.g - toe) / (shoulder - toe)) :
-                   mix(shoulder, 1.0, 1.0 - exp(-(col.g - shoulder) * 5.0)));
-          result.b = col.b < toe ? mix(0.0, toe, smoothstep(0.0, toe, col.b)) : 
-                   (col.b < shoulder ? mix(toe, shoulder, (col.b - toe) / (shoulder - toe)) :
-                   mix(shoulder, 1.0, 1.0 - exp(-(col.b - shoulder) * 5.0)));
-        } else if (curveType >= 1.5 && curveType < 2.5) {
-          // Fuji Eterna 8543
-          float toe = 0.15;
-          float shoulder = 0.92;
-          result.r = col.r < toe ? mix(0.0, toe, pow(col.r / toe, 1.2)) : 
-                   (col.r < shoulder ? mix(toe, shoulder, (col.r - toe) / (shoulder - toe)) :
-                   mix(shoulder, 1.0, 1.0 - exp(-(col.r - shoulder) * 4.5)));
-          result.g = col.g < toe ? mix(0.0, toe, pow(col.g / toe, 1.2)) : 
-                   (col.g < shoulder ? mix(toe, shoulder, (col.g - toe) / (shoulder - toe)) :
-                   mix(shoulder, 1.0, 1.0 - exp(-(col.g - shoulder) * 4.5)));
-          result.b = col.b < toe ? mix(0.0, toe, pow(col.b / toe, 1.2)) : 
-                   (col.b < shoulder ? mix(toe, shoulder, (col.b - toe) / (shoulder - toe)) :
-                   mix(shoulder, 1.0, 1.0 - exp(-(col.b - shoulder) * 4.5)));
+          float avg = (c.r + c.g + c.b) / 3.0;
+          float mx = max(c.r, max(c.g, c.b));
+          float amt = (mx - avg) * (-v * 3.0);
+          return mix(c, vec3(mx), amt);
         }
-        return result;
-      }
-
-      // Color Temperature - Kelvin to RGB using Planckian locus approximation
-      vec3 applyColorTemperature(vec3 col, float temp, float tint) {
-        // Normalize temp from 0-1 to 2000-10000K
-        float T = temp * 8000.0 + 2000.0;
-        
-        // Planckian locus approximation
-        float T2 = T * T;
-        float T3 = T2 * T;
-        float invT = 1.0 / T;
-        float invT2 = invT * invT;
-        
-        // Calculate chromaticity (simplified approximation)
-        float x, y;
-        if (T < 4000.0) {
-          x = -0.2661239 * 1e9 * invT3 + 0.2343580 * 1e6 * invT2 + 0.8776956 * 1e3 * invT + 0.179910;
-        } else {
-          x = -3.0258469 * 1e9 * invT3 + 2.1070379 * 1e6 * invT2 + 0.2226347 * 1e3 * invT + 0.240390;
-        }
-        y = -1.1063814 * x * x * x - 1.34811020 * x * x + 2.18555832 * x - 0.20219683;
-        
-        // Convert to RGB using D65 white point reference
-        float z = 1.0 - x - y;
-        float Y = 1.0;
-        float X = (Y / y) * x;
-        float Z = (Y / y) * z;
-        
-        // D65 reference white
-        float Xr = 0.95047;
-        float Yr = 1.00000;
-        float Zr = 1.08883;
-        
-        // Normalize
-        X /= Xr;
-        Z /= Zr;
-        
-        // Apply temperature shift
-        vec3 tempShift = vec3(
-          X * 1.4628067 - Y * 0.1840623 - Z * 0.2743606,
-          -X * 0.5217933 + Y * 1.4472381 + Z * 0.0677227,
-          X * 0.0349342 - Y * 0.0968930 + Z * 1.2884099
-        );
-        
-        // Apply tint (magenta/green shift)
-        vec3 tintShift = vec3(1.0 + tint * 0.1, 1.0 - tint * 0.05, 1.0 + tint * 0.1);
-        
-        return col * tempShift * tintShift;
-      }
-
-      // Split Toning with HSL blending
-      vec3 applySplitToning(vec3 col, vec3 shadowTint, vec3 highlightTint, float balance) {
-        float lum = dot(col, vec3(0.2126, 0.7152, 0.0722));
-        float shadowMask = smoothstep(0.25, 0.0, lum);
-        float highlightMask = smoothstep(0.75, 1.0, lum);
-        
-        // Convert tints to HSL
-        vec3 shadowHSL = rgb2hsl(shadowTint);
-        vec3 highlightHSL = rgb2hsl(highlightTint);
-        vec3 colHSL = rgb2hsl(col);
-        
-        // Blend hues and saturations, preserve luminance
-        float balanceFactor = (balance + 1.0) * 0.5; // -1 to 1 -> 0 to 1
-        float combinedMask = mix(shadowMask, highlightMask, balanceFactor);
-        
-        colHSL.x = mix(colHSL.x, mix(shadowHSL.x, highlightHSL.x, balanceFactor), combinedMask * 0.3);
-        colHSL.y = mix(colHSL.y, mix(shadowHSL.y, highlightHSL.y, balanceFactor), combinedMask * 0.4);
-        
-        return hsl2rgb(colHSL);
-      }
 
       vec3 hueRotate(vec3 c, float a) {
           vec3 k = vec3(0.57735);
@@ -4517,32 +5119,16 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
             col = mix(col, smear, uAnamorphic * 0.35);
           }
 
-          // Filmic Color Grading Pipeline
-          // 1. Film Response Curves (log-to-lin transform with toe/shoulder)
-          col = applyFilmCurve(col, uFilmCurve);
-          
-          // 2. RGB Curves (cubic Bezier evaluation per channel)
-          col.r = applyCurve(col.r, uCurvesR);
-          col.g = applyCurve(col.g, uCurvesG);
-          col.b = applyCurve(col.b, uCurvesB);
-          
-          // 3. Channel Mixer (RGB remix)
-          col = uChannelMixer * col;
-          
-          // 4. Color Temperature (Kelvin + Magenta/Green tint)
-          // uColorTemp is already in Kelvin (2000-10000), normalize to 0-1
-          float tempNorm = clamp((uColorTemp - 2000.0) / 8000.0, 0.0, 1.0);
-          col = applyColorTemperature(col, tempNorm, uTint);
-          
-          // 5. Split Toning (shadows/highlights with HSL blending)
-          col = applySplitToning(col, uSplitToneShadows, uSplitToneHighlights, uSplitToneBalance);
-          
-          // 6. Vibrance (HSV-based, protects saturated colors)
-          col = applyVibrance(col, uGradeVibrance);
-          
-          // 7. Saturation
+          // Lift Gamma Gain (LGG)
+          // Correct math: out = pow(color * Gain + Lift, 1.0/Gamma)
+          // Simplified for real-time:
+          col = col * uGain + uLift;
+          col = pow(max(col, 0.0), 1.0 / max(uGamma * 2.0, 0.01));
+
+          // Saturation & Vibrance
           col = adjustSaturation(col, uGradeSat);
-          
+          col = applyVibrance(col, uGradeVibrance);
+
           if (uHueRotate > 0.01) col = hueRotate(col, uHueRotate * 6.2831);
 
           // Apply LUT
@@ -4600,230 +5186,6 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     };
     Object.assign(screenFXPass.uniforms, lutUniforms);
 
-    // Initialize filmic color grading uniforms
-    const filmicUniforms = {
-      uCurvesR: { value: generateCurveTexture(config.curveRShadows, config.curveRMids, config.curveRHighlights, config.curveRWhites) },
-      uCurvesG: { value: generateCurveTexture(config.curveGShadows, config.curveGMids, config.curveGHighlights, config.curveGWhites) },
-      uCurvesB: { value: generateCurveTexture(config.curveBShadows, config.curveBMids, config.curveBHighlights, config.curveBWhites) },
-      uSplitToneShadows: { value: new THREE.Color(config.splitToneShadows) },
-      uSplitToneHighlights: { value: new THREE.Color(config.splitToneHighlights) },
-      uSplitToneBalance: { value: config.splitToneBalance },
-      uColorTemp: { value: config.colorTemp },
-      uTint: { value: config.tint },
-      uFilmCurve: { value: config.filmCurve },
-      uChannelMixer: { value: new THREE.Matrix3().set(
-        config.channelMixerRR, config.channelMixerRG, config.channelMixerRB,
-        config.channelMixerGR, config.channelMixerGG, config.channelMixerGB,
-        config.channelMixerBR, config.channelMixerBG, config.channelMixerBB
-      )}
-    };
-    Object.assign(screenFXPass.uniforms, filmicUniforms);
-
-    // Update curve texture when control points change
-    function updateCurveTexture(channel) {
-      const shadows = config[`curve${channel}Shadows`];
-      const mids = config[`curve${channel}Mids`];
-      const highlights = config[`curve${channel}Highlights`];
-      const whites = config[`curve${channel}Whites`];
-      const texture = generateCurveTexture(shadows, mids, highlights, whites);
-      if (screenFXPass.uniforms[`uCurves${channel}`]) {
-        screenFXPass.uniforms[`uCurves${channel}`].value = texture;
-      }
-      drawCurve(channel);
-    }
-
-    // Draw curve on canvas
-    function drawCurve(channel) {
-      const canvas = document.getElementById(`curve${channel}-canvas`);
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const w = canvas.width;
-      const h = canvas.height;
-      
-      ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-      ctx.fillRect(0, 0, w, h);
-      
-      // Draw grid
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-      ctx.lineWidth = 1;
-      for (let i = 0; i <= 4; i++) {
-        const x = (i / 4) * w;
-        const y = (i / 4) * h;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
-      
-      // Draw curve
-      const shadows = config[`curve${channel}Shadows`];
-      const mids = config[`curve${channel}Mids`];
-      const highlights = config[`curve${channel}Highlights`];
-      const whites = config[`curve${channel}Whites`];
-      
-      const color = channel === 'R' ? '#ff3333' : channel === 'G' ? '#33ff33' : '#3333ff';
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      
-      for (let i = 0; i < w; i++) {
-        const t = i / (w - 1);
-        let y;
-        if (t < 0.33) {
-          const localT = t / 0.33;
-          y = shadows + (mids - shadows) * (localT * localT * (3 - 2 * localT));
-        } else if (t < 0.66) {
-          const localT = (t - 0.33) / 0.33;
-          y = mids + (highlights - mids) * (localT * localT * (3 - 2 * localT));
-        } else {
-          const localT = (t - 0.66) / 0.34;
-          y = highlights + (whites - highlights) * (localT * localT * (3 - 2 * localT));
-        }
-        const py = h - (y * h);
-        if (i === 0) ctx.moveTo(i, py);
-        else ctx.lineTo(i, py);
-      }
-      ctx.stroke();
-      
-      // Draw control points
-      const points = [
-        { x: 0, y: shadows },
-        { x: 0.33 * w, y: mids },
-        { x: 0.66 * w, y: highlights },
-        { x: w, y: whites }
-      ];
-      ctx.fillStyle = color;
-      points.forEach(p => {
-        ctx.beginPath();
-        ctx.arc(p.x, h - (p.y * h), 4, 0, Math.PI * 2);
-        ctx.fill();
-      });
-    }
-
-    // Reset curve to default
-    function resetCurve(channel) {
-      config[`curve${channel}Shadows`] = 0.0;
-      config[`curve${channel}Mids`] = 0.33;
-      config[`curve${channel}Highlights`] = 0.66;
-      config[`curve${channel}Whites`] = 1.0;
-      updateCurveTexture(channel);
-      // Update UI sliders
-      document.getElementById(`curve${channel}Shadows`).value = 0.0;
-      document.getElementById(`curve${channel}Mids`).value = 0.33;
-      document.getElementById(`curve${channel}Highlights`).value = 0.66;
-      document.getElementById(`curve${channel}Whites`).value = 1.0;
-    }
-
-    // Update channel mixer matrix
-    function updateChannelMixer() {
-      if (!screenFXPass.uniforms.uChannelMixer) return;
-      const m = new THREE.Matrix3().set(
-        config.channelMixerRR, config.channelMixerRG, config.channelMixerRB,
-        config.channelMixerGR, config.channelMixerGG, config.channelMixerGB,
-        config.channelMixerBR, config.channelMixerBG, config.channelMixerBB
-      );
-      screenFXPass.uniforms.uChannelMixer.value = m;
-    }
-
-    // Histogram visualization
-    let histogramData = { r: new Array(256).fill(0), g: new Array(256).fill(0), b: new Array(256).fill(0) };
-    let histogramFrameCount = 0;
-
-    function updateHistogram() {
-      const canvas = document.getElementById('histogram-canvas');
-      if (!canvas) return;
-      
-      // Sample every 4th frame for performance
-      histogramFrameCount++;
-      if (histogramFrameCount % 4 !== 0) {
-        drawHistogram(canvas);
-        return;
-      }
-      
-      const ctx = canvas.getContext('2d');
-      const w = canvas.width = canvas.clientWidth || 400;
-      const h = canvas.height = canvas.clientHeight || 120;
-      
-      // Reset histogram
-      histogramData.r.fill(0);
-      histogramData.g.fill(0);
-      histogramData.b.fill(0);
-      
-      // Sample from render target (lower resolution for performance)
-      if (composer && composer.readRenderTargetPixels) {
-        try {
-          const sampleSize = 4; // Sample every 4th pixel
-          const pixels = new Uint8Array(w * h * 4);
-          // Note: readRenderTargetPixels requires render target, we'll use a workaround
-          // For now, we'll draw a placeholder and implement full sampling later
-        } catch (e) {
-          // Fallback: draw placeholder
-        }
-      }
-      
-      drawHistogram(canvas);
-    }
-
-    function drawHistogram(canvas) {
-      const ctx = canvas.getContext('2d');
-      const w = canvas.width;
-      const h = canvas.height;
-      
-      ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-      ctx.fillRect(0, 0, w, h);
-      
-      // Draw RGB parade (3 vertical bars)
-      const barWidth = w / 3;
-      const maxHeight = h - 10;
-      
-      // Red channel
-      ctx.fillStyle = 'rgba(255, 0, 0, 0.6)';
-      for (let i = 0; i < 256; i++) {
-        const x = (i / 256) * barWidth;
-        const height = (histogramData.r[i] / Math.max(...histogramData.r, 1)) * maxHeight;
-        ctx.fillRect(x, h - height, barWidth / 256, height);
-      }
-      
-      // Green channel
-      ctx.fillStyle = 'rgba(0, 255, 0, 0.6)';
-      for (let i = 0; i < 256; i++) {
-        const x = barWidth + (i / 256) * barWidth;
-        const height = (histogramData.g[i] / Math.max(...histogramData.g, 1)) * maxHeight;
-        ctx.fillRect(x, h - height, barWidth / 256, height);
-      }
-      
-      // Blue channel
-      ctx.fillStyle = 'rgba(0, 0, 255, 0.6)';
-      for (let i = 0; i < 256; i++) {
-        const x = barWidth * 2 + (i / 256) * barWidth;
-        const height = (histogramData.b[i] / Math.max(...histogramData.b, 1)) * maxHeight;
-        ctx.fillRect(x, h - height, barWidth / 256, height);
-      }
-      
-      // Draw separators
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(barWidth, 0);
-      ctx.lineTo(barWidth, h);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(barWidth * 2, 0);
-      ctx.lineTo(barWidth * 2, h);
-      ctx.stroke();
-    }
-
-    // Initialize curve canvases
-    ['R', 'G', 'B'].forEach(ch => {
-      setTimeout(() => drawCurve(ch), 100);
-    });
-
     function parseCubeLUT(data) {
       const lines = data.split('\n');
       let size = 0;
@@ -4846,63 +5208,6 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       texture.minFilter = texture.magFilter = THREE.LinearFilter;
       texture.unpackAlignment = 1; texture.needsUpdate = true;
       return texture;
-    }
-
-    // Generate 64x1 curve texture from 4 control points using cubic Bezier
-    function generateCurveTexture(shadows, mids, highlights, whites) {
-      const size = 64;
-      const data = new Float32Array(size * 4);
-      
-      // Control points: shadows (0.0), mids (0.33), highlights (0.66), whites (1.0)
-      const p0 = { x: 0.0, y: shadows };
-      const p1 = { x: 0.33, y: mids };
-      const p2 = { x: 0.66, y: highlights };
-      const p3 = { x: 1.0, y: whites };
-      
-      // Generate curve using cubic Bezier interpolation
-      for (let i = 0; i < size; i++) {
-        const t = i / (size - 1);
-        // Use smoothstep for smoother interpolation between control points
-        let y;
-        if (t < 0.33) {
-          const localT = t / 0.33;
-          y = mix(shadows, mids, smoothstep(0.0, 1.0, localT));
-        } else if (t < 0.66) {
-          const localT = (t - 0.33) / 0.33;
-          y = mix(mids, highlights, smoothstep(0.0, 1.0, localT));
-        } else {
-          const localT = (t - 0.66) / 0.34;
-          y = mix(highlights, whites, smoothstep(0.0, 1.0, localT));
-        }
-        
-        data[i * 4] = clamp(y, 0.0, 1.0);
-        data[i * 4 + 1] = clamp(y, 0.0, 1.0);
-        data[i * 4 + 2] = clamp(y, 0.0, 1.0);
-        data[i * 4 + 3] = 1.0;
-      }
-      
-      const texture = new THREE.DataTexture(data, size, 1);
-      texture.format = THREE.RGBAFormat;
-      texture.type = THREE.FloatType;
-      texture.minFilter = THREE.LinearFilter;
-      texture.magFilter = THREE.LinearFilter;
-      texture.wrapS = THREE.ClampToEdgeWrapping;
-      texture.wrapT = THREE.ClampToEdgeWrapping;
-      texture.needsUpdate = true;
-      return texture;
-    }
-
-    function smoothstep(edge0, edge1, x) {
-      const t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
-      return t * t * (3.0 - 2.0 * t);
-    }
-
-    function mix(x, y, a) {
-      return x * (1.0 - a) + y * a;
-    }
-
-    function clamp(x, min, max) {
-      return Math.max(min, Math.min(max, x));
     }
 
     function buildHDRIMap() {
@@ -5016,9 +5321,12 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       const theme = colorThemes[config.colorTheme];
       if (theme) {
         config.colorPrimary = theme.primary; config.colorSecondary = theme.secondary; config.colorBg = theme.bg;
-        document.getElementById('colorPrimary').value = theme.primary;
-        document.getElementById('colorSecondary').value = theme.secondary;
-        document.getElementById('colorBg').value = theme.bg;
+        const colorPrimaryEl = document.getElementById('colorPrimary');
+        const colorSecondaryEl = document.getElementById('colorSecondary');
+        const colorBgEl = document.getElementById('colorBg');
+        if (colorPrimaryEl) colorPrimaryEl.value = theme.primary;
+        if (colorSecondaryEl) colorSecondaryEl.value = theme.secondary;
+        if (colorBgEl) colorBgEl.value = theme.bg;
       }
       scene.fog.color = new THREE.Color(config.colorBg);
       bgUniforms.uBgColor.value.set(config.colorBg);
@@ -5102,24 +5410,20 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 
     function exportConfig() {
       const configStr = JSON.stringify(config, null, 2);
-      navigator.clipboard.writeText(configStr).then(() => {
-        alert('Preset copied to clipboard as JSON!');
-      });
+      navigator.clipboard.writeText(configStr)
+        .then(() => {
+          console.log('Preset copied to clipboard as JSON!');
+          if (typeof showStatus === 'function') showStatus('Preset copied to clipboard!');
+        })
+        .catch((err) => {
+          console.warn('Clipboard copy failed:', err);
+          if (typeof showStatus === 'function') showStatus('Clipboard copy failed');
+        });
     }
 
     function importConfig() {
-      const input = prompt('Paste your EchoVerse Preset JSON here:');
-      if (!input) return;
-      try {
-        const newConfig = JSON.parse(input);
-        Object.assign(config, newConfig);
-        // Refresh systems
-        applyColorTheme();
-        buildMainGeometry();
-        alert('Preset imported successfully!');
-      } catch (e) {
-        alert('Invalid preset JSON.');
-      }
+      console.warn('Import via prompt is temporarily disabled.');
+      if (typeof showStatus === 'function') showStatus('Import feature disabled');
     }
 
     // Streaming & Webcam logic
@@ -5133,10 +5437,17 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 
       if (target) {
         try {
-          webcamStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
-          webcamVideo.srcObject = webcamStream;
-          webcamContainer.style.display = 'block';
-          updateWebcamPosition();
+          webcamStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            }
+          });
+          if (webcamVideo) webcamVideo.srcObject = webcamStream;
+          if (webcamContainer) {
+            webcamContainer.style.display = 'block';
+            updateWebcamPosition();
+          }
         } catch (e) {
           console.error("Webcam access denied:", e);
           config.showWebcam = false;
@@ -5146,11 +5457,12 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           webcamStream.getTracks().forEach(track => track.stop());
           webcamStream = null;
         }
-        webcamContainer.style.display = 'none';
+        if (webcamContainer) webcamContainer.style.display = 'none';
       }
     }
 
     function updateWebcamPosition() {
+      if (!webcamContainer) return;
       const pos = config.webcamPosition;
       webcamContainer.style.top = pos.includes('top') ? '40px' : 'auto';
       webcamContainer.style.bottom = pos.includes('bottom') ? '40px' : 'auto';
@@ -5160,21 +5472,25 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 
     function updateStreamOverlay() {
       const overlay = document.getElementById('stream-overlay');
+      const overlayTitle = document.getElementById('overlay-title');
+      const overlayBpm = document.getElementById('overlay-bpm');
+      const overlayEnergy = document.getElementById('overlay-energy');
+
       if (config.showStreamOverlay) {
-        overlay.style.display = 'block';
-        document.getElementById('overlay-title').textContent = config.overlayText;
-        document.getElementById('overlay-bpm').style.display = config.showBpmOverlay ? 'block' : 'none';
+        if (overlay) overlay.style.display = 'block';
+        if (overlayTitle) overlayTitle.textContent = config.overlayText;
+        if (overlayBpm) overlayBpm.style.display = config.showBpmOverlay ? 'block' : 'none';
 
         if (config.showBpmOverlay) {
-          document.getElementById('overlay-bpm').textContent = `${Math.round(audio.bpmSmooth)} BPM`;
-          document.getElementById('overlay-energy').textContent = `ENERGY: ${(audio.energy * 100).toFixed(0)}% `;
+          if (overlayBpm) overlayBpm.textContent = `${Math.round(audio.bpmSmooth || 0)} BPM`;
+          if (overlayEnergy) overlayEnergy.textContent = `ENERGY: ${((audio.energy || 0) * 100).toFixed(0)}% `;
         }
       } else {
-        overlay.style.display = 'none';
+        if (overlay) overlay.style.display = 'none';
       }
 
       const chroma = document.getElementById('webcam-chroma-overlay');
-      chroma.style.display = config.webcamChromaKey ? 'block' : 'none';
+      if (chroma) chroma.style.display = config.webcamChromaKey ? 'block' : 'none';
     }
 
     // Build all
@@ -5187,16 +5503,20 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     const specCtx = specCanvas.getContext('2d');
     specCanvas.width = window.innerWidth; specCanvas.height = 50;
 
+    // Cached colors for spectrum to avoid GC in animation loop
+    const _specCol1 = new THREE.Color(), _specCol2 = new THREE.Color(), _specColFinal = new THREE.Color();
+
     function drawSpectrum() {
       if (!config.showSpectrum || !analyser) { specCanvas.style.opacity = '0'; return; }
       specCanvas.style.opacity = '0.5';
       specCtx.clearRect(0, 0, specCanvas.width, specCanvas.height);
       const barW = specCanvas.width / 64;
-      const primary = new THREE.Color(config.colorPrimary), secondary = new THREE.Color(config.colorSecondary);
+      _specCol1.set(config.colorPrimary);
+      _specCol2.set(config.colorSecondary);
       for (let i = 0; i < 64; i++) {
         const v = audio.getBand(i), h = v * 48, t = i / 64;
-        const col = primary.clone().lerp(secondary, t);
-        specCtx.fillStyle = `rgba(${Math.floor(col.r * 255)}, ${Math.floor(col.g * 255)}, ${Math.floor(col.b * 255)}, ${0.25 + v * 0.6})`;
+        _specColFinal.copy(_specCol1).lerp(_specCol2, t);
+        specCtx.fillStyle = `rgba(${Math.floor(_specColFinal.r * 255)}, ${Math.floor(_specColFinal.g * 255)}, ${Math.floor(_specColFinal.b * 255)}, ${0.25 + v * 0.6})`;
         specCtx.fillRect(i * barW, specCanvas.height - h, barW - 1, h);
       }
     }
@@ -5243,6 +5563,10 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     } catch (e) { }
 
     function saveCameraPreset(slot) {
+      if (slot < 0 || slot >= cameraPresets.slots.length) {
+        console.warn(`Invalid camera preset slot: ${slot}`);
+        return;
+      }
       cameraPresets.slots[slot] = {
         distance: camState.distance, angle: camState.angle, height: camState.height, roll: camState.roll, fov: camera.fov,
         position: { x: camera.position.x, y: camera.position.y, z: camera.position.z }
@@ -5253,6 +5577,10 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 
 
     function loadCameraPreset(slot, instant = false) {
+      if (slot < 0 || slot >= cameraPresets.slots.length) {
+        console.warn(`Invalid camera preset slot: ${slot}`);
+        return;
+      }
       const preset = cameraPresets.slots[slot];
       if (!preset) return;
       cameraPresets.activeSlot = slot;
@@ -5286,6 +5614,10 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     }
 
     function clearCameraPreset(slot) {
+      if (slot < 0 || slot >= cameraPresets.slots.length) {
+        console.warn(`Invalid camera preset slot: ${slot}`);
+        return;
+      }
       cameraPresets.slots[slot] = null;
       localStorage.setItem('echoVerseCamPresets', JSON.stringify(cameraPresets.slots));
       updateCamPresetUI();
@@ -5528,18 +5860,33 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         const entry = presets[name];
         const card = document.createElement('div');
         card.className = 'preset-card';
-        card.innerHTML = `
-          < img src = "${entry.thumb || ''}" loading = "lazy" />
-            <div class="preset-card__label">
-              <span>${name}</span>
-              <span class="delete-preset-btn" style="color: #ff4444;" data-name="${name}">✕</span>
-            </div>
-        `;
-        card.querySelector('img').onclick = () => loadPreset(name);
-        card.querySelector('.delete-preset-btn').onclick = (e) => {
+
+        const img = document.createElement('img');
+        img.loading = 'lazy';
+        img.src = entry.thumb || '';
+        img.alt = '';
+        img.addEventListener('click', () => loadPreset(name));
+
+        const label = document.createElement('div');
+        label.className = 'preset-card__label';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = name;
+
+        const del = document.createElement('span');
+        del.className = 'delete-preset-btn';
+        del.style.color = '#ff4444';
+        del.dataset.name = name;
+        del.textContent = '✕';
+        del.addEventListener('click', (e) => {
           e.stopPropagation();
           deletePreset(name);
-        };
+        });
+
+        label.appendChild(nameSpan);
+        label.appendChild(del);
+        card.appendChild(img);
+        card.appendChild(label);
         list.appendChild(card);
       });
     }
@@ -5560,46 +5907,135 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       });
     });
 
+    function syncUI() {
+      document.querySelectorAll('[data-bind]').forEach(el => {
+        const key = el.dataset.bind;
+        if (key in config) {
+          if (el.classList.contains('toggle')) {
+            if (config[key]) el.classList.add('active');
+            else el.classList.remove('active');
+          } else {
+            el.value = config[key];
+          }
+        }
+      });
+    }
+
     function randomize() {
       const forms = ['icosahedron', 'octahedron', 'dodecahedron', 'torus', 'torusKnot', 'sphere', 'mobius', 'gyroid', 'hopfFibration', 'seashell'];
       const themes = Object.keys(colorThemes);
       const cameras = ['orbit', 'reactive', 'cinematic', 'spiral', 'figure8', 'vortex', 'pendulum'];
-      const particles = ['vertex', 'swarm', 'explode', 'orbital', 'magnetic', 'wave', 'vortex', 'aurora'];
+      const particles = ['stardust', 'neon-rain', 'quantum', 'filament', 'swarm', 'orbital'];
       const trails = ['none', 'light', 'medium', 'heavy', 'smear'];
       const envs = ['void', 'stars', 'nebula', 'grid'];
       const patterns = ['none', 'mandala', 'lattice', 'plasma', 'voronoi', 'waves'];
+      const filmLooks = ['none', 'cinematic', 'vintage', 'neon', 'dream'];
+      const goboModes = ['none', 'bars', 'rings', 'cloud'];
+      const renderStyles = ['wire', 'solid', 'physic'];
 
+      // --- CORE & THEME ---
       config.form = forms[Math.floor(Math.random() * forms.length)];
       config.density = Math.floor(Math.random() * 4) + 1;
       config.colorTheme = themes[Math.floor(Math.random() * themes.length)];
-      config.cameraMode = cameras[Math.floor(Math.random() * cameras.length)];
-      config.particleMode = particles[Math.floor(Math.random() * particles.length)];
-      config.trailMode = trails[Math.floor(Math.random() * trails.length)];
-      config.environment = envs[Math.floor(Math.random() * envs.length)];
-      config.bgPattern = patterns[Math.floor(Math.random() * patterns.length)];
       config.symmetry = [3, 4, 6, 8, 12][Math.floor(Math.random() * 5)];
       config.sensitivity = 0.6 + Math.random() * 1.8;
       config.turbulence = Math.random() * 1.5;
+
+      // --- FX ---
       config.bloomStrength = 0.4 + Math.random() * 1.2;
+      config.bloomRadius = 0.2 + Math.random() * 1.0;
+      config.glitchAmount = Math.random() > 0.8 ? Math.random() * 0.4 : 0;
+      config.vignette = 0.1 + Math.random() * 0.6;
+      config.grain = Math.random() * 0.2;
+      config.aberration = Math.random() * 0.2;
+      config.anamorphic = Math.random() > 0.8 ? Math.random() : 0;
+      config.scanlines = Math.random() > 0.8 ? Math.random() : 0;
+      config.filmLook = filmLooks[Math.floor(Math.random() * filmLooks.length)];
+      config.hueRotate = Math.random() * 360;
+
+      // --- MODEL MOTION ---
+      config.modelSpinEnabled = Math.random() > 0.1;
+      config.modelSpinSpeed = 0.2 + Math.random() * 1.8;
+      config.modelSpinAxis = Math.random() > 0.5 ? 'y' : 'xyz';
+      config.modelSpinReactive = Math.random() > 0.2;
+      config.modelSpinReactivity = 0.5 + Math.random() * 1.0;
+      config.modelPulseEnabled = Math.random() > 0.2;
+      config.modelPulseAmount = 0.2 + Math.random() * 1.3;
+
+      // --- ENVIRONMENT & LIGHTING ---
+      config.environment = envs[Math.floor(Math.random() * envs.length)];
+      config.bgPattern = patterns[Math.floor(Math.random() * patterns.length)];
+      config.bgPatternStrength = 0.1 + Math.random() * 0.5;
+      config.fogDensity = 0.001 + Math.random() * 0.015;
+      config.ringCount = Math.floor(Math.random() * 6);
+      config.lightKeyInt = 0.5 + Math.random() * 2.5;
+      config.lightFillInt = 0.2 + Math.random() * 1.8;
+      config.lightRimInt = 1.0 + Math.random() * 5.0;
+      config.godRaysInt = 0.1 + Math.random() * 0.9;
+      config.goboMode = goboModes[Math.floor(Math.random() * goboModes.length)];
+      config.renderStyle = renderStyles[Math.floor(Math.random() * renderStyles.length)];
+      config.matMetal = 0.1 + Math.random() * 0.9;
+      config.matRough = 0.1 + Math.random() * 0.8;
+      config.showHDRI = Math.random() > 0.5;
+
+      // --- CAMERA ---
+      config.cameraMode = cameras[Math.floor(Math.random() * cameras.length)];
+      config.cameraFov = 40 + Math.random() * 60;
+      config.cameraDistance = 20 + Math.random() * 50;
       config.cameraSpeed = 0.3 + Math.random() * 1.2;
       config.cameraShake = Math.random() * 1.0;
-      config.bgPatternStrength = 0.1 + Math.random() * 0.5;
+      config.cameraBeatZoom = Math.random() > 0.4;
+      config.cameraAutoAngles = Math.random() > 0.7;
+
+      // --- MISC LAYERS & TOGGLES ---
+      config.particleMode = particles[Math.floor(Math.random() * particles.length)];
+      config.trailMode = trails[Math.floor(Math.random() * trails.length)];
       config.showLightRays = Math.random() > 0.7;
       config.showAurora = Math.random() > 0.7;
       config.showEnergyField = Math.random() > 0.8;
       config.showOrbitals = Math.random() > 0.7;
+      config.beatFlash = Math.random() > 0.3;
+      config.colorCycle = Math.random() > 0.2;
+      config.synesthesia = Math.random() > 0.8;
+      config.harmonicSnap = Math.random() > 0.4;
+      config.negativeSpace = Math.random() > 0.9;
+      config.reactiveBg = Math.random() > 0.4;
 
-      applyColorTheme(); setBgPatternFromConfig(); updateTrailMode();
-      buildMainGeometry(); buildRings(); buildEnvironment(); buildShockwaves();
-      buildLightRays(); buildAurora(); buildEnergyField(); buildOrbitals();
+      // --- NEW PARTICLE REACTIVITY ---
+      config.dynAttractionStrength = Math.random() * 2.0;
+      config.dynSizeReactivity = 0.5 + Math.random() * 1.5;
+      config.dynVelocityStretching = Math.random() * 2.0;
 
-      document.getElementById('form').value = config.form;
-      document.getElementById('colorTheme').value = config.colorTheme;
-      document.getElementById('cameraMode').value = config.cameraMode;
-      document.getElementById('particleMode').value = config.particleMode;
-      document.getElementById('trailMode').value = config.trailMode;
-      document.getElementById('environment').value = config.environment;
-      document.getElementById('bgPattern').value = config.bgPattern;
+      // --- APPLY SIDE EFFECTS ---
+      applyColorTheme();
+      setBgPatternFromConfig();
+      updateTrailMode();
+      buildMainGeometry();
+      buildRings();
+      buildEnvironment();
+      buildShockwaves();
+      buildLightRays();
+      buildAurora();
+      buildEnergyField();
+      buildOrbitals();
+
+      // Direct Side Effects not covered by buildX functions
+      if (camera) {
+        camera.fov = config.cameraFov;
+        camera.updateProjectionMatrix();
+      }
+      if (scene && scene.fog) {
+        scene.fog.density = config.fogDensity;
+      }
+      if (typeof camState !== 'undefined') {
+        camState.autoMode = config.cameraMode;
+        camState.targetDistance = config.cameraDistance;
+      }
+      if (typeof screenFXPass !== 'undefined' && screenFXPass.uniforms.uHueRotate) {
+        screenFXPass.uniforms.uHueRotate.value = (config.hueRotate || 0) / 360;
+      }
+
+      syncUI();
     }
     // Animation loop
     function animate(timestamp) {
@@ -5622,7 +6058,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       // Beat pulse decay is handled after beat detection for better timing
 
       let isBeat = false;
-      if (analyser && playing) {
+      if (analyser && playing && freqData && timeData) {
         if ((timestamp - _lastFFTUpdate) >= getFFTInterval()) {
           _lastFFTUpdate = timestamp;
           analyser.getByteFrequencyData(freqData);
@@ -5638,19 +6074,38 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         // Update professional analysis
         if (window.analysisManager) window.analysisManager.update(audio, dt);
 
-        document.getElementById('bpm-display').textContent = `${audio.getBPM()} BPM`;
-        document.getElementById('energy-display').textContent = `Energy: ${(audio.energy * 100).toFixed(0)}% `;
-        document.getElementById('bar-display').textContent = `Bar: ${audio.barCount} `;
-        document.getElementById('note-display').textContent = `Note: ${audio.noteName} `;
+        const bpmDisplay = document.getElementById('bpm-display');
+        const energyDisplay = document.getElementById('energy-display');
+        const barDisplay = document.getElementById('bar-display');
+        const noteDisplay = document.getElementById('note-display');
+        if (bpmDisplay) bpmDisplay.textContent = `${audio.getBPM()} BPM`;
+        if (energyDisplay) energyDisplay.textContent = `Energy: ${(audio.energy * 100).toFixed(0)}% `;
+        if (barDisplay) barDisplay.textContent = `Bar: ${audio.barCount} `;
+        if (noteDisplay) noteDisplay.textContent = `Note: ${audio.noteName} `;
 
         // Update progress bar
         const progressPercent = (audioEl.currentTime / audioEl.duration) * 100 || 0;
+        const audioProgress = document.getElementById('audio-progress');
+        const currentTime = document.getElementById('current-time');
+        const duration = document.getElementById('duration');
+        const zenProgress = document.getElementById('zen-progress');
         if (audioEl.duration) {
-          document.getElementById('audio-progress').style.width = `${progressPercent}% `;
-          document.getElementById('current-time').textContent = formatTime(audioEl.currentTime);
-          document.getElementById('duration').textContent = formatTime(audioEl.duration);
+          if (audioProgress) audioProgress.style.width = `${progressPercent}% `;
+          if (currentTime) currentTime.textContent = formatTime(audioEl.currentTime);
+          if (duration) duration.textContent = formatTime(audioEl.duration);
         }
-        document.getElementById('zen-progress').style.width = `${progressPercent}% `;
+        if (zenProgress) zenProgress.style.width = `${progressPercent}% `;
+      }
+
+      if (typeof animate._nextOverlayUpdate === 'undefined') animate._nextOverlayUpdate = 0;
+      if (timestamp >= animate._nextOverlayUpdate) {
+        animate._nextOverlayUpdate = timestamp + 400;
+        if (config.showStreamOverlay && config.showBpmOverlay) {
+          const bpmEl = document.getElementById('overlay-bpm');
+          const nrgEl = document.getElementById('overlay-energy');
+          if (bpmEl) bpmEl.textContent = `${Math.round(audio.bpmSmooth || 0)} BPM`;
+          if (nrgEl) nrgEl.textContent = `ENERGY: ${((audio.energy || 0) * 100).toFixed(0)}%`;
+        }
       }
       updateMusicClock(dt);
 
@@ -5704,7 +6159,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       bgUniforms.uPatternStrength.value = config.bgPatternStrength;
 
       // Main geometry - USE MOTION COORDINATOR for scale (single source of truth)
-      if (wireframeMesh && particleSystem) {
+      if (wireframeMesh) {
         const rotBase = 0.55 * config.cameraSpeed;
 
         // Rotation driven by TIME and mid frequencies, NOT beats
@@ -5716,7 +6171,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         const baseX = modelSpin * 0.455;
         const baseZ = modelSpin * 0.273;
 
-        const centroidFactor = lerp(1.0, (0.85 + 0.35 * spectralCentroid), react);
+        const centroidFactor = lerp(1.0, (0.85 + 0.35 * audio.spectralCentroid), react);
 
         let rotY = baseY + motion.midMotion * 0.06 * react;
         let rotX = baseX * centroidFactor;
@@ -5748,8 +6203,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
           rimMesh.material.uniforms.uTime.value = t;
         }
 
-        // Advanced Dynamic Particles - Web Worker Physics & GPU Instancing
-        if (dynamicParticles) dynamicParticles.update(dt, t, audio);
+
 
         // Final background/fog color sync
         if (scene.fog) scene.fog.color.copy(bgUniforms.uBgColor.value);
@@ -5884,7 +6338,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       });
 
       // Dynamic Particles
-      if (dynamicParticles) dynamicParticles.update(dt, t, audio);
+      if (dynamicParticles) dynamicParticles.update(dt, t, audio, getHarmonizedColor(motion.swell, 0.5), isBeat);
 
       // Shockwaves
       shockwaves.forEach(s => {
@@ -6035,7 +6489,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       camState.look.lerp(camState.targetLook, dt * camLerpSlow);
 
       // Advanced Shake
-      applyShakeProfile(t, dt, energy);
+      applyShakeProfile(t, dt, audio.energy);
 
       // Standard Shake logic
       const shakeMultiplier = 1.0 - cSmooth * 0.9;
@@ -6058,7 +6512,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       camera.rotation.z = camState.appliedRoll;
 
       // Depth of Field
-      updateDOF(energy);
+      updateDOF(audio.energy);
       if (bokehPass) {
         bokehPass.enabled = config.dofEnabled;
         bokehPass.uniforms.focus.value = camState.dofFocus;
@@ -6114,7 +6568,6 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 
       drawSpectrum();
       composer.render();
-      updateHistogram();
 
       // Monitor Draw Calls
       const calls = renderer.info.render.calls;
@@ -6127,11 +6580,11 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
 
       // Status Bar logic update
       const statusEl = document.getElementById('status');
-      if (playing) {
+      if (statusEl && playing) {
         statusEl.classList.add('playing');
         if (isBeat) {
           statusEl.classList.add('active-beat');
-          setTimeout(() => statusEl.classList.remove('active-beat'), 400);
+          setTimeout(() => statusEl?.classList.remove('active-beat'), 400);
         }
       }
     }
@@ -6143,7 +6596,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
         tab.classList.add('active');
-        document.querySelector(`.settings - panel[data - panel="${tab.dataset.tab}"]`).classList.add('active');
+        document.querySelector(`.settings-panel[data-panel="${tab.dataset.tab}"]`).classList.add('active');
       });
     });
 
@@ -6155,13 +6608,13 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
     let statusHideTimer;
     const statusEl = document.getElementById('status');
     function resetStatusTimer() {
-      if (playing) return;
+      if (playing || !statusEl) return;
       clearTimeout(statusHideTimer);
       statusHideTimer = setTimeout(() => {
-        if (!statusEl.matches(':hover')) statusEl.classList.remove('playing');
+        if (statusEl && !statusEl.matches(':hover')) statusEl.classList.remove('playing');
       }, 3000);
     }
-    statusEl.addEventListener('mousemove', resetStatusTimer);
+    if (statusEl) statusEl.addEventListener('mousemove', resetStatusTimer);
 
     // Sync new layer sliders to config defaults
     const _psm = document.getElementById('particleSizeMult'); if (_psm) _psm.value = config.particleSizeMult;
@@ -6193,55 +6646,55 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         val = el.value;
       }
 
-      // Update config
-      if (key in config) {
-        config[key] = val;
-      } else {
-        // Handle mapped keys if they don't match config directly
-        const keyMap = {
-          toggleBars: 'showBars',
-          toggleWireframe: 'showWireframeCore',
-          toggleRimGlow: 'showRimGlow',
-          toggleDeepParticles: 'showDeepParticles',
-          toggleRings: 'showRings',
-          toggleModelSpin: 'modelSpinEnabled',
-          toggleModelSpinReactive: 'modelSpinReactive',
-          toggleModelPulse: 'modelPulseEnabled',
-          toggleBarLockColors: 'barLockColors',
-          toggleBeatZoom: 'cameraBeatZoom',
-          toggleAutoAngles: 'cameraAutoAngles',
-          toggleInner: 'showInner',
-          toggleOuter: 'showOuter',
-          toggleWaveform: 'showWaveform',
-          toggleConnections: 'showConnections',
-          toggleParticles: 'showParticles',
-          toggleShockwaves: 'showShockwaves',
-          toggleLightRays: 'showLightRays',
-          toggleAurora: 'showAurora',
-          toggleEnergyField: 'showEnergyField',
-          toggleOrbitals: 'showOrbitals',
-          toggleReactiveBg: 'reactiveBg',
-          toggleSpectrum: 'showSpectrum',
-          toggleAutoPilot: 'autoPilot',
-          toggleBeatFlash: 'beatFlash',
-          toggleColorCycle: 'colorCycle',
-          toggleSynesthesia: 'synesthesia',
-          toggleHarmonicSnap: 'harmonicSnap',
-          toggleNegativeSpace: 'negativeSpace',
-          toggleAnalysisMeters: 'showAnalysisMeters',
-          toggleStereoWave: 'showStereoWave',
-          toggleHDRI: 'showHDRI',
-          toggleDOF: 'dofEnabled',
-          toggleCamPathLoop: 'camPathLoop',
-          toggleDynParticles: 'dynamicParticlesEnabled',
-          toggleDynCollisions: 'dynCollisionEnabled',
-          toggleDynAudioSpawn: 'dynAudioReactiveSpawn',
-          toggleStreamOverlay: 'showStreamOverlay',
-          toggleBpmOverlay: 'showBpmOverlay',
-          toggleWebcam: 'showWebcam', // Assuming a config for webcam visibility
-          toggleWebcamChroma: 'webcamChromaKey'
-        };
-        if (keyMap[key]) config[keyMap[key]] = val;
+      const keyMap = {
+        toggleBars: 'showBars',
+        toggleWireframe: 'showWireframeCore',
+        toggleRimGlow: 'showRimGlow',
+        toggleDeepParticles: 'showDeepParticles',
+        toggleRings: 'showRings',
+        toggleModelSpin: 'modelSpinEnabled',
+        toggleModelSpinReactive: 'modelSpinReactive',
+        toggleModelPulse: 'modelPulseEnabled',
+        toggleBarLockColors: 'barLockColors',
+        toggleBeatZoom: 'cameraBeatZoom',
+        toggleAutoAngles: 'cameraAutoAngles',
+        toggleInner: 'showInner',
+        toggleOuter: 'showOuter',
+        toggleWaveform: 'showWaveform',
+        toggleConnections: 'showConnections',
+        toggleParticles: 'showParticles',
+        toggleShockwaves: 'showShockwaves',
+        toggleLightRays: 'showLightRays',
+        toggleAurora: 'showAurora',
+        toggleEnergyField: 'showEnergyField',
+        toggleOrbitals: 'showOrbitals',
+        toggleReactiveBg: 'reactiveBg',
+        toggleSpectrum: 'showSpectrum',
+        toggleAutoPilot: 'autoPilot',
+        toggleBeatFlash: 'beatFlash',
+        toggleColorCycle: 'colorCycle',
+        toggleSynesthesia: 'synesthesia',
+        toggleHarmonicSnap: 'harmonicSnap',
+        toggleNegativeSpace: 'negativeSpace',
+        toggleAnalysisMeters: 'showAnalysisMeters',
+        toggleStereoWave: 'showStereoWave',
+        toggleHDRI: 'showHDRI',
+        toggleDOF: 'dofEnabled',
+        toggleCamPathLoop: 'camPathLoop',
+        toggleDynParticles: 'dynamicParticlesEnabled',
+        toggleDynCollisions: 'dynCollisionEnabled',
+        toggleDynAudioSpawn: 'dynAudioReactiveSpawn',
+        toggleStreamOverlay: 'showStreamOverlay',
+        toggleBpmOverlay: 'showBpmOverlay',
+        toggleWebcam: 'showWebcam',
+        toggleWebcamChroma: 'webcamChromaKey',
+        toggleRepeatQueue: 'repeatQueue',
+        toggleCrossfade: 'crossfade'
+      };
+
+      const effectiveKey = (key in config) ? key : (keyMap[key] || key);
+      if (effectiveKey in config) {
+        config[effectiveKey] = val;
       }
 
       // Trigger side effects
@@ -6302,38 +6755,6 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         gradeGain: () => { if (screenFXPass.uniforms.uGain) screenFXPass.uniforms.uGain.value.set(config.gradeGain); },
         gradeSat: () => { if (screenFXPass.uniforms.uGradeSat) screenFXPass.uniforms.uGradeSat.value = config.gradeSat; },
         gradeVibrance: () => { if (screenFXPass.uniforms.uGradeVibrance) screenFXPass.uniforms.uGradeVibrance.value = config.gradeVibrance; },
-        // RGB Curves
-        curveRShadows: () => { updateCurveTexture('R'); },
-        curveRMids: () => { updateCurveTexture('R'); },
-        curveRHighlights: () => { updateCurveTexture('R'); },
-        curveRWhites: () => { updateCurveTexture('R'); },
-        curveGShadows: () => { updateCurveTexture('G'); },
-        curveGMids: () => { updateCurveTexture('G'); },
-        curveGHighlights: () => { updateCurveTexture('G'); },
-        curveGWhites: () => { updateCurveTexture('G'); },
-        curveBShadows: () => { updateCurveTexture('B'); },
-        curveBMids: () => { updateCurveTexture('B'); },
-        curveBHighlights: () => { updateCurveTexture('B'); },
-        curveBWhites: () => { updateCurveTexture('B'); },
-        // Split Toning
-        splitToneShadows: () => { if (screenFXPass.uniforms.uSplitToneShadows) screenFXPass.uniforms.uSplitToneShadows.value.set(config.splitToneShadows); },
-        splitToneHighlights: () => { if (screenFXPass.uniforms.uSplitToneHighlights) screenFXPass.uniforms.uSplitToneHighlights.value.set(config.splitToneHighlights); },
-        splitToneBalance: () => { if (screenFXPass.uniforms.uSplitToneBalance) screenFXPass.uniforms.uSplitToneBalance.value = config.splitToneBalance; },
-        // Color Temperature
-        colorTemp: () => { if (screenFXPass.uniforms.uColorTemp) screenFXPass.uniforms.uColorTemp.value = config.colorTemp; },
-        tint: () => { if (screenFXPass.uniforms.uTint) screenFXPass.uniforms.uTint.value = config.tint; },
-        // Film Response
-        filmCurve: () => { if (screenFXPass.uniforms.uFilmCurve) screenFXPass.uniforms.uFilmCurve.value = parseFloat(config.filmCurve); },
-        // Channel Mixer
-        channelMixerRR: () => { updateChannelMixer(); },
-        channelMixerRG: () => { updateChannelMixer(); },
-        channelMixerRB: () => { updateChannelMixer(); },
-        channelMixerGR: () => { updateChannelMixer(); },
-        channelMixerGG: () => { updateChannelMixer(); },
-        channelMixerGB: () => { updateChannelMixer(); },
-        channelMixerBR: () => { updateChannelMixer(); },
-        channelMixerBG: () => { updateChannelMixer(); },
-        channelMixerBB: () => { updateChannelMixer(); },
         godRaysInt: () => { config.godRaysInt = val; },
         hueRotate: () => { screenFXPass.uniforms.uHueRotate.value = val / 360; },
         lightKeyInt: () => { config.lightKeyInt = val; },
@@ -6394,7 +6815,7 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         webcamChromaKey: () => { updateStreamOverlay(); }
       };
 
-      if (callbacks[key]) callbacks[key]();
+      if (callbacks[effectiveKey]) callbacks[effectiveKey]();
     }
 
     // Final Listeners and Initialization
@@ -6449,7 +6870,41 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         playing = false;
         if (playIcon) playIcon.style.display = 'block';
         if (pauseIcon) pauseIcon.style.display = 'none';
+        // Auto-advance queue if streaming
+        if (streamingService && streamingService.queue.length > 0) {
+          streamingService.playNext();
+        }
       });
+
+      // Stream Tab Event Listeners
+      // Stream Trending
+      document.getElementById('loadTrendingBtn')?.addEventListener('click', async () => {
+        const tracks = await streamingService.getTrending();
+        streamingService.renderResults(tracks);
+      });
+
+      const streamSearchInput = document.getElementById('streamSearchInput');
+      if (streamSearchInput) {
+        let searchDebounce = null;
+        streamSearchInput.addEventListener('input', (e) => {
+          clearTimeout(searchDebounce);
+          searchDebounce = setTimeout(async () => {
+            const query = e.target.value.trim();
+            if (query.length >= 2) {
+              const results = await streamingService.search(query);
+              streamingService.renderResults(results);
+            } else {
+              const streamResults = document.getElementById('streamResults');
+              if (streamResults) streamResults.innerHTML = '';
+            }
+          }, 1000); // Increased debounce to prevent request floods
+        });
+      }
+
+      document.getElementById('streamPrevBtn')?.addEventListener('click', () => streamingService.playPrev());
+      document.getElementById('streamNextBtn')?.addEventListener('click', () => streamingService.playNext());
+      document.getElementById('streamClearQueue')?.addEventListener('click', () => streamingService.clearQueue());
+      document.getElementById('streamTestBeat')?.addEventListener('click', () => streamingService.playTestBeat());
 
       // Recording
       let mediaRecorder, recordedChunks = [];
@@ -6467,7 +6922,15 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
         const bps = bpsMap[config.recQuality] || 8000000;
 
         try {
-          mediaRecorder = new MediaRecorder(combined, { mimeType: 'video/webm; codecs=vp9', videoBitsPerSecond: bps });
+          const candidates = [
+            'video/webm; codecs=vp9',
+            'video/webm; codecs=vp8',
+            'video/webm'
+          ];
+          const selectedMime = candidates.find(t => (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)));
+          const options = { videoBitsPerSecond: bps };
+          if (selectedMime) options.mimeType = selectedMime;
+          mediaRecorder = new MediaRecorder(combined, options);
           recordedChunks = [];
           mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
           mediaRecorder.onstop = () => {
@@ -6495,6 +6958,13 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       document.getElementById('takeSnapshot')?.addEventListener('click', takeHighResSnapshot);
       document.getElementById('exportPreset')?.addEventListener('click', exportConfig);
       document.getElementById('importPreset')?.addEventListener('click', importConfig);
+      document.getElementById('takeSnapshotMini')?.addEventListener('click', takeHighResSnapshot);
+      document.getElementById('exportPresetMini')?.addEventListener('click', exportConfig);
+      document.getElementById('importPresetMini')?.addEventListener('click', importConfig);
+
+      document.getElementById('lutChooseBtn')?.addEventListener('click', () => {
+        document.getElementById('lutFile')?.click();
+      });
 
       // Camera Presets & Path
       let selectedCamSlot = 0;
@@ -6531,6 +7001,21 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       };
       window.addEventListener('mousemove', resetUiTimer);
       window.addEventListener('mousedown', resetUiTimer);
+      window.addEventListener('touchstart', resetUiTimer, { passive: true });
+
+      // Touch/Wheel scroll prevention for UI
+      const uiContainer = document.getElementById('ui');
+      const preventScroll = (e) => {
+        const isRange = e.target.type === 'range';
+        const isPanel = e.target.closest('.settings-container');
+        if (isRange || isPanel) e.stopPropagation();
+      };
+      uiContainer.addEventListener('wheel', preventScroll, { passive: false });
+      uiContainer.addEventListener('touchstart', preventScroll, { passive: false });
+
+      // Audio Context Resume on Interaction
+      const resumeAudio = () => { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); };
+      ['click', 'touchstart', 'keydown'].forEach(ev => window.addEventListener(ev, resumeAudio));
 
       // Tooltip Updates
       const updateTooltips = () => {
@@ -6616,15 +7101,6 @@ Not licensed under MIT. Demo/listening only. No reuse/redistribution without per
       else { ui.style.padding = '25px'; ui.style.gap = '20px'; }
     }
 
-    // Dynamic Overlay Update Loop
-    setInterval(() => {
-      if (config.showStreamOverlay && config.showBpmOverlay) {
-        const bpmEl = document.getElementById('overlay-bpm');
-        const nrgEl = document.getElementById('overlay-energy');
-        if (bpmEl) bpmEl.textContent = `${Math.round(audio.bpmSmooth || 0)} BPM`;
-        if (nrgEl) nrgEl.textContent = `ENERGY: ${((audio.energy || 0) * 100).toFixed(0)}%`;
-      }
-    }, 100);
   </script>
 </body>
 
